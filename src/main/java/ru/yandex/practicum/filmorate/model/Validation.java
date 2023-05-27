@@ -3,24 +3,24 @@ package ru.yandex.practicum.filmorate.model;
 import java.time.LocalDate;
 
 public class Validation {
-    public static final LocalDate START_FILM_DATE = LocalDate.of(1895,12,28);
-    public final static int LENGTH_FILM_DESCRIPTION = 200;
 
     public static boolean isLengthOk(String string) {
+        final int lengthFilmDescription = 200;
         if ((string == null) || string.isBlank()) {
             return true;
         }
-        if (string.length() > LENGTH_FILM_DESCRIPTION) {
+        if (string.length() > lengthFilmDescription) {
             return false;
         }
         return true;
     }
 
     public static boolean isDateFilmOk(LocalDate date) {
+       final LocalDate startFilmDate = LocalDate.of(1895,12,28);
        if (date == null) {
            return true;
        }
-        return START_FILM_DATE.isBefore(date);
+        return startFilmDate.isBefore(date);
     }
 
     public static boolean isDateUserOk(LocalDate date) {
