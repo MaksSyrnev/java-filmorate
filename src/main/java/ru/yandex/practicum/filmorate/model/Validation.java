@@ -17,7 +17,10 @@ public class Validation {
     }
 
     public static boolean isDateFilmOk(LocalDate date) {
-       return START_FILM_DATE.isBefore(date);
+       if(date == null) {
+           return true;
+       }
+        return START_FILM_DATE.isBefore(date);
     }
 
     public static boolean isDateUserOk(LocalDate date) {

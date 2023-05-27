@@ -26,6 +26,7 @@ public class UserController {
     @PostMapping
     public User addUser(@RequestBody User user) {
         if(!isUserDataValidate(user)) {
+            log.error("Получен POST запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new ValidationException("некоректные данные пользователя");
         }
         log.info("Получен POST запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
@@ -42,9 +43,11 @@ public class UserController {
     @PutMapping
     public User updateUser(@RequestBody User user) {
         if(!users.containsKey(user.getId())) {
+            log.error("Получен PUT запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new RuntimeException("нет пользователя с таким id");
         }
         if(!isUserDataValidate(user)) {
+            log.error("Получен PUT запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new ValidationException("некоректные данные пользователя");
         }
         log.info("Получен PUT запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
@@ -63,8 +66,8 @@ public class UserController {
             return false;
         }
         LocalDate date = user.getBirthday();
-        if (!Validation.isDateUserOk(date)) {
-            return false;
+        if((date != null) && (!Validation.isDateUserOk(date))) {
+                return false;
         }
         return true;
     }

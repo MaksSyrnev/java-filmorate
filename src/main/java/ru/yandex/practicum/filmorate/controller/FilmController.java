@@ -27,6 +27,7 @@ public class FilmController {
     @PostMapping()
     public Film addFilm(@RequestBody Film film) {
         if(!isValidateFilm(film)) {
+            log.error("Получен POST запрос к эндпоинту: /films ', Строка параметров запроса: '{}'", film);
             throw new ValidationException("ошибка в данных фильма");
         }
         log.info("Получен POST запрос к эндпоинту: /films ', Строка параметров запроса: '{}'", film);
@@ -39,9 +40,11 @@ public class FilmController {
     @PutMapping()
     public Film updateFilm(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
+            log.error("Получен PUT запрос к эндпоинту: /films ', Строка параметров запроса: '{}'", film);
             throw new ValidationException("неверный id " + film.getId() + "фильма");
         }
         if(!isValidateFilm(film)) {
+            log.error("Получен PUT запрос к эндпоинту: /films ', Строка параметров запроса: '{}'", film);
             throw new ValidationException("ошибка в данных фильма");
         }
         log.info("Получен PUT запрос к эндпоинту: /films ', Строка параметров запроса: '{}'", film);
@@ -50,7 +53,7 @@ public class FilmController {
     }
 
     private boolean isValidateFilm(Film film)  {
-        if(film.getName().isEmpty() || film.getName().isBlank()) {
+        if((film.getName() == null) || film.getName().isBlank()) {
             return false;
         }
         String description = film.getDescription();
