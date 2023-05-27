@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping
     public User addUser(@RequestBody User user) {
-        if(!isUserDataValidate(user)) {
+        if (!isUserDataValidate(user)) {
             log.error("Получен POST запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new ValidationException("некоректные данные пользователя");
         }
@@ -33,7 +33,7 @@ public class UserController {
         id++;
         user.setId(id);
         String name = user.getName();
-        if((name == null) || name.isBlank()) {
+        if ((name == null) || name.isBlank()) {
             user.setName(user.getLogin());
         }
         users.put(id, user);
@@ -42,11 +42,11 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
-        if(!users.containsKey(user.getId())) {
+        if (!users.containsKey(user.getId())) {
             log.error("Получен PUT запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new RuntimeException("нет пользователя с таким id");
         }
-        if(!isUserDataValidate(user)) {
+        if (!isUserDataValidate(user)) {
             log.error("Получен PUT запрос к эндпоинту: /users ', Строка параметров запроса: '{}'", user);
             throw new ValidationException("некоректные данные пользователя");
         }
@@ -57,16 +57,16 @@ public class UserController {
 
     private boolean isUserDataValidate(User user) {
         String email = user.getEmail();
-        if((email == null) || email.isBlank() || (!Validation.isHasEmailSymbol(email))
+        if ((email == null) || email.isBlank() || (!Validation.isHasEmailSymbol(email))
             || Validation.isHasSpaceSymbol(email)) {
             return false;
         }
         String login = user.getLogin();
-        if((login == null) || login.isBlank() || Validation.isHasSpaceSymbol(login)) {
+        if ((login == null) || login.isBlank() || Validation.isHasSpaceSymbol(login)) {
             return false;
         }
         LocalDate date = user.getBirthday();
-        if((date != null) && (!Validation.isDateUserOk(date))) {
+        if ((date != null) && (!Validation.isDateUserOk(date))) {
                 return false;
         }
         return true;

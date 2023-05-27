@@ -7,7 +7,7 @@ public class Validation {
     final static int LENGTH_FILM_DESCRIPTION = 200;
 
     public static boolean isLengthOk(String string) {
-        if((string == null) || string.isBlank()) {
+        if ((string == null) || string.isBlank()) {
             return true;
         }
         if (string.length() > LENGTH_FILM_DESCRIPTION) {
@@ -17,7 +17,7 @@ public class Validation {
     }
 
     public static boolean isDateFilmOk(LocalDate date) {
-       if(date == null) {
+       if (date == null) {
            return true;
        }
         return START_FILM_DATE.isBefore(date);
@@ -33,7 +33,7 @@ public class Validation {
     }
 
     public static boolean isHasSpaceSymbol(String string) {
-        if((string == null) || string.isBlank()) {
+        if ((string == null) || string.isBlank()) {
             return true;
         }
         return string.contains(" ");
