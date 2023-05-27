@@ -57,14 +57,14 @@ public class FilmController {
             return false;
         }
         String description = film.getDescription();
-        if(!Validation.isLengthOk(description)) {
+        if (!Validation.isLengthOk(description)) {
             return false;
         }
         LocalDate date = film.getReleaseDate();
-        if(!Validation.isDateFilmOk(date)){
+        if (!Validation.isDateFilmOk(date)){
             return false;
         }
-        if (film.getDuration()< 0 ) {
+        if (film.getDuration() < 0) {
             return false;
         }
         return true;
