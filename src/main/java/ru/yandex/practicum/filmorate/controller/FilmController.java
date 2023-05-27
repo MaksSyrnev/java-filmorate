@@ -61,7 +61,7 @@ public class FilmController {
             return false;
         }
         LocalDate date = film.getReleaseDate();
-        if (!Validation.isDateFilmOk(date)){
+        if (!Validation.isDateFilmOk(date)) {
             return false;
         }
         if (film.getDuration() < 0) {
