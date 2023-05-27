@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class Validation {
     public static final LocalDate START_FILM_DATE = LocalDate.of(1895,12,28);
-    final static int LENGTH_FILM_DESCRIPTION = 200;
+    public final static int LENGTH_FILM_DESCRIPTION = 200;
 
     public static boolean isLengthOk(String string) {
         if ((string == null) || string.isBlank()) {
