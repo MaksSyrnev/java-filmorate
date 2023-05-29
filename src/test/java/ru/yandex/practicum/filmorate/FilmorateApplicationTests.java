@@ -19,10 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmorateApplicationTests {
 
 	@Test
-	void contextLoads() {
-	}
-
-	@Test
 	@DisplayName("Проверка добавления пользователя с корректными данными")
 	void validationCorrectUserDate() {
 		User user = new User();
