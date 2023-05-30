@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Validation;
+import ru.yandex.practicum.filmorate.validation.Validation;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -21,6 +21,7 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> getUsers() {
+        log.info("Получен запрос к эндпоинту: GET /users '");
         return new ArrayList<User>(users.values());
     }
 
@@ -45,11 +46,7 @@ public class UserController {
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
-        if (!users.containsKey(user.getId())) {
-            log.error("Неверный id в данных запроса к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
-            throw new RuntimeException("нет пользователя с таким id");
-        }
-        if (!isUserDataValidate(user)) {
+        if ((!users.containsKey(user.getId())) || (!isUserDataValidate(user))) {
             log.error("Ошибка в данных запроса к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
             throw new ValidationException("некоректные данные пользователя");
         }

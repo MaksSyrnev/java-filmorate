@@ -1,26 +1,29 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.validation;
 
 import java.time.LocalDate;
 
 public class Validation {
+    public static final int FILM_DESCRIPTION_LENGTH = 200;
+    public static final int START_FILM_YEAR = 1895;
+    public static final int START_FILM_MONTH = 12;
+    public static final int START_FILM_DAY = 28;
 
     public boolean isLengthOk(String string) {
-        final int lengthFilmDescription = 200;
         if ((string == null) || string.isBlank()) {
             return true;
         }
-        if (string.length() > lengthFilmDescription) {
+        if (string.length() > FILM_DESCRIPTION_LENGTH) {
             return false;
         }
         return true;
     }
 
     public boolean isDateFilmOk(LocalDate date) {
-       final LocalDate startFilmDate = LocalDate.of(1895,12,28);
-       if (date == null) {
+        LocalDate startDate = LocalDate.of(START_FILM_YEAR, START_FILM_MONTH, START_FILM_DAY);
+        if (date == null) {
            return true;
        }
-        return startFilmDate.isBefore(date);
+        return startDate.isBefore(date);
     }
 
     public boolean isDateUserOk(LocalDate date) {

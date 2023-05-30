@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
-import ru.yandex.practicum.filmorate.model.Validation;
+import ru.yandex.practicum.filmorate.validation.Validation;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
@@ -21,6 +21,7 @@ public class FilmController {
 
     @GetMapping("/films")
     public List<Film> getFilms() {
+        log.info("Получен запрос к эндпоинту: GET /films '");
         return new ArrayList<Film>(films.values());
     }
 
@@ -41,11 +42,7 @@ public class FilmController {
     @PutMapping("/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("запрос к эндпоинту: PUT /films ', Строка параметров запроса: '{}'", film);
-        if (!films.containsKey(film.getId())) {
-            log.error("Неверный id фильма, данные запроса к эндпоинту: PUT /films ', '{}'", film);
-            throw new ValidationException("неверный id " + film.getId() + "фильма");
-        }
-        if (!isValidateFilm(film)) {
+        if ((!films.containsKey(film.getId())) || (!isValidateFilm(film))) {
             log.error("Ошибка в данных запроса к эндпоинту:PUT /films ', : '{}'", film);
             throw new ValidationException("ошибка в данных фильма");
         }

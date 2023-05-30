@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -17,11 +18,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class FilmorateApplicationTests {
+	private User user;
+	private Film film;
+
+	@BeforeEach
+	void beforeEach() {
+		this.user = new User();
+		this.film = new Film();
+	}
 
 	@Test
 	@DisplayName("Проверка добавления пользователя с корректными данными")
 	void validationCorrectUserDate() {
-		User user = new User();
 		user.setLogin("dolore");
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
@@ -37,7 +45,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("Добавление пользователя логин с пробелом")
 	void validationFailUserLogin() {
-		User user = new User();
 		user.setLogin("Nick Name");
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
@@ -62,7 +69,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление пользователя пустой логин")
 	void validationNullUserLogin() {
-		User user = new User();
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
@@ -86,7 +92,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление пользователя пустое имя")
 	void validationNullUserName() {
-		User user = new User();
 		user.setLogin("dolore");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
@@ -103,7 +108,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("Добавление пользователя некорректная почта")
 	void validationFailUserMail() {
-		User user = new User();
 		user.setLogin("Nick Name");
 		user.setName("Nick Name");
 		user.setEmail("mailmail.ru");
@@ -128,7 +132,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("Добавление пользователя пустая почта")
 	void validationNullUserMail() {
-		User user = new User();
 		user.setLogin("Nick Name");
 		user.setName("Nick Name");
 		user.setBirthday(LocalDate.of(1946,8,20));
@@ -152,7 +155,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление пользователя неверная дата рожения")
 	void validationFailUserBirthday() {
-		User user = new User();
 		user.setLogin("dolore");
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
@@ -177,7 +179,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление пользователя пустая дата рождения")
 	void validationNullUserBirthday() {
-		User user = new User();
 		user.setLogin("dolore");
 		user.setEmail("mail@mail.ru");
 		UserController userController = new UserController();
@@ -191,7 +192,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма корректные данные")
 	void validationFilmCorrectData() {
-		Film film = new Film();
 		film.setName("nisi eiusmod");
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
@@ -207,7 +207,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма пустое название")
 	void validationFilmNullName() {
-		Film film = new Film();
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
 		film.setDuration(100);
@@ -231,7 +230,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма все данные пустые кроме названия")
 	void validationFilmNullData() {
-		Film film = new Film();
 		film.setName("nisi eiusmod");
 		FilmController filmController = new FilmController();
 		filmController.addFilm(film);
@@ -244,7 +242,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма все дата релиза некорректная")
 	void validationFilmIncorrectDateRelese() {
-		Film film = new Film();
 		film.setName("nisi eiusmod");
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1867,03,25));
@@ -269,7 +266,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма писание больше 200 символов")
 	void validationFilmIncorrectDescription() {
-		Film film = new Film();
 		film.setName("nisi eiusmod");
 		film.setDescription("adipisicing rtirtuorturo " +
 				"rturiotrtiro rturioturoituroti rturoturotiru rtiuroitrtoir" +
@@ -301,7 +297,6 @@ class FilmorateApplicationTests {
 	@Test
 	@DisplayName("добавление фильма продолжительность отрицательная")
 	void validationFilmIncorrectDuration() {
-		Film film = new Film();
 		film.setName("nisi eiusmod");
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
