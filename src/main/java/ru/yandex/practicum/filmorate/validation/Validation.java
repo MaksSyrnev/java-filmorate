@@ -3,10 +3,10 @@ package ru.yandex.practicum.filmorate.validation;
 import java.time.LocalDate;
 
 public class Validation {
-    public static final int FILM_DESCRIPTION_LENGTH = 200;
-    public static final int START_FILM_YEAR = 1895;
-    public static final int START_FILM_MONTH = 12;
-    public static final int START_FILM_DAY = 28;
+    private static final int FILM_DESCRIPTION_LENGTH = 200;
+    private static final int START_FILM_YEAR = 1895;
+    private static final int START_FILM_MONTH = 12;
+    private static final int START_FILM_DAY = 28;
 
     public boolean isLengthOk(String string) {
         if ((string == null) || string.isBlank()) {

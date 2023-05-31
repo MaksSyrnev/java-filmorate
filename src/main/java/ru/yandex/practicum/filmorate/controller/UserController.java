@@ -17,7 +17,7 @@ import java.util.List;
 public class UserController {
     private int id = 0;
     private final HashMap<Integer,User> users = new HashMap<>();
-    Validation validator = new Validation();
+    private final Validation validator = new Validation();
 
     @GetMapping("/users")
     public List<User> getUsers() {
@@ -28,10 +28,7 @@ public class UserController {
     @PostMapping("/users")
     public User addUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: POST /users ', Строка параметров запроса: '{}'", user);
-        if (!isUserDataValidate(user)) {
-            log.error("Ошибка в данных, запрос к эндпоинту:POST /users ', '{}'", user);
-            throw new ValidationException("некоректные данные пользователя");
-        }
+        validateUser(user, "POST");
         id++;
         user.setId(id);
         String name = user.getName();
@@ -46,10 +43,7 @@ public class UserController {
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
-        if ((!users.containsKey(user.getId())) || (!isUserDataValidate(user))) {
-            log.error("Ошибка в данных запроса к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
-            throw new ValidationException("некоректные данные пользователя");
-        }
+        validateUser(user, "PUT");
         int userId = user.getId();
         User currentUser = users.get(userId);
         currentUser.setName(user.getName());
@@ -60,20 +54,29 @@ public class UserController {
         return users.get(userId);
     }
 
-    private boolean isUserDataValidate(User user) {
+    private void validateUser(User user, String method) {
+        if ("PUT".equals(method)) {
+            if (!users.containsKey(user.getId())) {
+                logAndThrow(user, method);
+            }
+        }
         String email = user.getEmail();
         if ((email == null) || email.isBlank() || (!validator.isHasEmailSymbol(email))
             || validator.isHasSpaceSymbol(email)) {
-            return false;
+            logAndThrow(user, method);
         }
         String login = user.getLogin();
         if ((login == null) || login.isBlank() || validator.isHasSpaceSymbol(login)) {
-            return false;
+            logAndThrow(user, method);
         }
         LocalDate date = user.getBirthday();
         if ((date != null) && (!validator.isDateUserOk(date))) {
-                return false;
+            logAndThrow(user, method);
         }
-        return true;
+    }
+
+    private void logAndThrow(User user, String method) {
+        log.error("Ошибка в данных запроса к эндпоинту:{} /users ', : '{}'", method, user);
+        throw new ValidationException("некоректные данные пользователя");
     }
 }

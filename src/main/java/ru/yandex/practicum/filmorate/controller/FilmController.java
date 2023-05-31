@@ -17,7 +17,7 @@ import java.util.List;
 public class FilmController {
     private int id = 0;
     private final HashMap<Integer, Film> films = new HashMap<>();
-    Validation validator = new Validation();
+    private final Validation validator = new Validation();
 
     @GetMapping("/films")
     public List<Film> getFilms() {
@@ -28,10 +28,7 @@ public class FilmController {
     @PostMapping("/films")
     public Film addFilm(@Valid @RequestBody  Film film) {
         log.info("Получен запрос к эндпоинту: POST /films ', Строка параметров запроса: '{}'", film);
-        if (!isValidateFilm(film)) {
-            log.error("Ошибка в данных запроса к эндпоинту: POST /films ', Строка параметров запроса: '{}'", film);
-            throw new ValidationException("ошибка в данных фильма");
-        }
+        validateFilm(film, "POST");
         id++;
         film.setId(id);
         films.put(id,film);
@@ -42,10 +39,7 @@ public class FilmController {
     @PutMapping("/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("запрос к эндпоинту: PUT /films ', Строка параметров запроса: '{}'", film);
-        if ((!films.containsKey(film.getId())) || (!isValidateFilm(film))) {
-            log.error("Ошибка в данных запроса к эндпоинту:PUT /films ', : '{}'", film);
-            throw new ValidationException("ошибка в данных фильма");
-        }
+        validateFilm(film, "PUT");
         int filmId = film.getId();
         Film currentFilm = films.get(filmId);
         currentFilm.setName(film.getName());
@@ -56,21 +50,30 @@ public class FilmController {
         return films.get(filmId);
     }
 
-    private boolean isValidateFilm(Film film)  {
+    private void validateFilm(Film film, String method)  {
+        if ("PUT".equals(method)) {
+            if (!films.containsKey(film.getId())) {
+                logAndThrow(film,method);
+            }
+        }
         if ((film.getName() == null) || film.getName().isBlank()) {
-            return false;
+            logAndThrow(film,method);
         }
         String description = film.getDescription();
         if (!validator.isLengthOk(description)) {
-            return false;
+            logAndThrow(film,method);
         }
         LocalDate date = film.getReleaseDate();
         if (!validator.isDateFilmOk(date)) {
-            return false;
+            logAndThrow(film,method);
         }
         if (film.getDuration() < 0) {
-            return false;
+            logAndThrow(film,method);
         }
-        return true;
+    }
+
+    private void logAndThrow(Film film, String method) {
+        log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+        throw new ValidationException("ошибка в данных фильма");
     }
 }
