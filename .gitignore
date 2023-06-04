@@ -10,10 +10,14 @@
 hs_err_pid*
 out/
 target/
+
+mvnw
+mvnw.cmd
+
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+*.yml
 ### STS ###
 .apt_generated
 .classpath
@@ -22,6 +26,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
+
+*.DS_Store
 
 ### IntelliJ IDEA ###
 .idea
@@ -44,3 +50,5 @@ build/
 
 *.db
 db/*
+
+
