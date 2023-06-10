@@ -8,9 +8,13 @@ import java.util.List;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage{
+    private int id;
+    private final HashMap<Integer, Film> films;
 
-    private int id = 0;
-    private final HashMap<Integer, Film> films = new HashMap<>();
+    public InMemoryFilmStorage() {
+        this.id = 0;
+        this.films = new HashMap<>();
+    }
 
     @Override
     public Film addFilm(Film film) {
