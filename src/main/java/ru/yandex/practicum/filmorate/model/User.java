@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import javax.validation.constraints.Email;
@@ -17,5 +20,6 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    private final Set<Long> friends = new HashSet<>();
 
 }
