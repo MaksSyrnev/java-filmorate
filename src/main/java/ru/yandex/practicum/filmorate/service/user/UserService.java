@@ -12,13 +12,6 @@ import java.util.Set;
 
 @Service
 public class UserService {
-    /*
-    Создайте UserService, который будет отвечать за такие операции с пользователями,
-    как добавление в друзья, удаление из друзей, вывод списка общих друзей.
-    Пока пользователям не надо одобрять заявки в друзья — добавляем сразу.
-    То есть если Лена стала другом Саши, то это значит, что Саша теперь друг Лены.
-    Убедитесь, что сервисы зависят от интерфейсов классов-хранилищ, а не их реализаций.
-     */
     private final UserStorage storage;
 
     @Autowired
@@ -34,12 +27,8 @@ public class UserService {
         }
         Set<Long> userFriends = user.get().getFriends();
         Set<Long> friendFriends = friend.get().getFriends();
-        if (!userFriends.contains(friendId)) {
-            userFriends.add((long) friendId);
-        }
-        if (!friendFriends.contains(userId)) {
-            friendFriends.add((long) userId);
-        }
+        userFriends.add((long) friendId);
+        friendFriends.add((long) userId);
     }
 
     public void deleteFriendById(int userId, int friendId) {
@@ -50,15 +39,12 @@ public class UserService {
         }
         Set<Long> userFriends = user.get().getFriends();
         Set<Long> friendFriends = friend.get().getFriends();
-        if (!userFriends.contains(friendId)) {
-            userFriends.remove((long) friendId);
-        }
-        if (!friendFriends.contains(userId)) {
-            friendFriends.remove((long) userId);
-        }
+        userFriends.remove((long) friendId);
+        friendFriends.remove((long) userId);
     }
 
     public List<Long> getСommonFriends(int firstUserId, int secondUserId) {
+        ArrayList<Long> commonFriends = new ArrayList<>();
         Optional<User> firstUser = storage.getUserById(firstUserId);
         Optional<User> secondUser = storage.getUserById(secondUserId);
         if (firstUser.isEmpty() || secondUser.isEmpty()) {
@@ -67,11 +53,16 @@ public class UserService {
         Set<Long> firstFreinds = firstUser.get().getFriends();
         Set<Long> secondFreinds = firstUser.get().getFriends();
         if (firstFreinds.isEmpty()) {
-            return new ArrayList<Long>();
+            return commonFriends;
         } else if (secondFreinds.isEmpty()) {
-            return new ArrayList<Long>();
+            return commonFriends;
         } else {
-            return new ArrayList<Long>();
+            for (Long i : firstFreinds) {
+                if (secondFreinds.contains(i)) {
+                    commonFriends.add(i);
+                }
+            }
+            return commonFriends;
         }
     }
 }

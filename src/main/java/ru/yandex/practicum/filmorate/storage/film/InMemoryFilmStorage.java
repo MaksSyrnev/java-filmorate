@@ -46,10 +46,12 @@ public class InMemoryFilmStorage implements FilmStorage{
         return 0;
     }
 
+    @Override
     public Optional<Film> getFilmById(int id) {
         return Optional.ofNullable(films.get(id));
     }
 
+    @Override
     public List<Film> getAllFilms() {
         return new ArrayList<>(films.values());
     }
