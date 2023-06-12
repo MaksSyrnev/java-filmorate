@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.service.validation.Validation;
 
 import javax.validation.Valid;
@@ -16,26 +16,36 @@ import java.util.Optional;
 @Slf4j
 @RestController
 public class UserController {
-    private final InMemoryUserStorage userStorage;
+    private final UserService userService;
     private final Validation validator;
 
     @Autowired
-    public UserController(InMemoryUserStorage userStorage, Validation validator) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService, Validation validator) {
+        this.userService = userService;
         this.validator = validator;
     }
 
     @GetMapping("/users")
     public List<User> getUsers() {
         log.info("Получен запрос к эндпоинту: GET /users '");
-        return userStorage.getAllUser();
+        return userService.getAllUser();
+    }
+
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable int id) {
+        log.info("Получен запрос к эндпоинту: GET /users/{id}");
+        Optional<User> user = userService.getUserById(id);
+        if (user.isEmpty()) {
+            throw new RuntimeException("нет пользователя с таким id"); // ??
+        }
+        return user.get();
     }
 
     @PostMapping("/users")
     public User addUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: POST /users ', Строка параметров запроса: '{}'", user);
         validateUser(user, "POST");
-        User newUser = userStorage.addUser(user);
+        User newUser = userService.addUser(user);
         log.info("Ответ на запрос к эндпоинту: POST /users ', '{}'", user);
         return newUser;
     }
@@ -44,7 +54,7 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
         validateUser(user, "PUT");
-        User updUser = userStorage.updateUser(user);
+        User updUser = userService.updateUser(user);
         if (updUser != null) {
             log.info("Ответ на запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", updUser);
             return updUser;
@@ -53,9 +63,33 @@ public class UserController {
         }
     }
 
+   @PutMapping("/users/{id}/friends/{friendId}")
+   public User addUserFriend(@PathVariable int id, @PathVariable int friendId) {
+       log.info("Получен запрос к эндпоинту: PUT /users/{}/friends/{} '", id, friendId);
+       return userService.addFriendById(id,friendId);
+   }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteUserFriendById(@PathVariable int id, @PathVariable int friendId) {
+        log.info("Получен запрос к эндпоинту: DELETE /users/{}/friends/{} '", id, friendId);
+        return userService.deleteFriendById(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public List<User> getUserFriends(@PathVariable int id) {
+        log.info("Получен запрос к эндпоинту: GET /users/{}/friends '", id);
+        return userService.getAllFriends(id);
+    }
+
+//  GET /users/{id}/friends/common/{otherId} — список друзей, общих с другим пользователем.
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getСommonFriends(id, otherId);
+    }
+
     private void validateUser(User user, String method) {
         if ("PUT".equals(method)) {
-            Optional<User> userInMemory = userStorage.getUserById(user.getId());
+            Optional<User> userInMemory = userService.getUserById(user.getId());
             if (userInMemory.isEmpty()) {
                 logAndThrow(user, method);
             }
