@@ -25,10 +25,10 @@ public class UserService {
         if (user.isEmpty() || friend.isEmpty()) {
             throw new RuntimeException("Ошибка в данных");
         }
-        Set<Long> userFriends = user.get().getFriends();
-        Set<Long> friendFriends = friend.get().getFriends();
-        userFriends.add((long) friendId);
-        friendFriends.add((long) userId);
+        Set<Integer> userFriends = user.get().getFriends();
+        Set<Integer> friendFriends = friend.get().getFriends();
+        userFriends.add(friendId);
+        friendFriends.add(userId);
     }
 
     public void deleteFriendById(int userId, int friendId) {
@@ -37,27 +37,27 @@ public class UserService {
         if (user.isEmpty() || friend.isEmpty()) {
             throw new RuntimeException("Ошибка в данных");
         }
-        Set<Long> userFriends = user.get().getFriends();
-        Set<Long> friendFriends = friend.get().getFriends();
-        userFriends.remove((long) friendId);
-        friendFriends.remove((long) userId);
+        Set<Integer> userFriends = user.get().getFriends();
+        Set<Integer> friendFriends = friend.get().getFriends();
+        userFriends.remove(friendId);
+        friendFriends.remove(userId);
     }
 
-    public List<Long> getСommonFriends(int firstUserId, int secondUserId) {
-        ArrayList<Long> commonFriends = new ArrayList<>();
+    public List<Integer> getСommonFriends(int firstUserId, int secondUserId) {
+        ArrayList<Integer> commonFriends = new ArrayList<>();
         Optional<User> firstUser = storage.getUserById(firstUserId);
         Optional<User> secondUser = storage.getUserById(secondUserId);
         if (firstUser.isEmpty() || secondUser.isEmpty()) {
             throw new RuntimeException("Ошибка в данных");
         }
-        Set<Long> firstFreinds = firstUser.get().getFriends();
-        Set<Long> secondFreinds = firstUser.get().getFriends();
+        Set<Integer> firstFreinds = firstUser.get().getFriends();
+        Set<Integer> secondFreinds = firstUser.get().getFriends();
         if (firstFreinds.isEmpty()) {
             return commonFriends;
         } else if (secondFreinds.isEmpty()) {
             return commonFriends;
         } else {
-            for (Long i : firstFreinds) {
+            for (Integer i : firstFreinds) {
                 if (secondFreinds.contains(i)) {
                     commonFriends.add(i);
                 }

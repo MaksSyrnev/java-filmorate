@@ -11,8 +11,8 @@ public class InMemoryFilmStorage implements FilmStorage{
     private final HashMap<Integer, Film> films;
 
     public InMemoryFilmStorage() {
-        this.id = 0;
-        this.films = new HashMap<>();
+        id = 0;
+        films = new HashMap<>();
     }
 
     @Override
@@ -55,4 +55,5 @@ public class InMemoryFilmStorage implements FilmStorage{
     public List<Film> getAllFilms() {
         return new ArrayList<>(films.values());
     }
+
 }
