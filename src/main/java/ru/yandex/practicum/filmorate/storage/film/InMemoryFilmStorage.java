@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.*;
 
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     private int id;
     private final HashMap<Integer, Film> films;
     private final TreeSet<Film> topFilms;
@@ -44,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public int deleteFilmById(int id) {
-        if(films.containsKey(id)) {
+        if (films.containsKey(id)) {
             topFilms.remove(films.get(id));
             films.remove(id);
             return id;
@@ -65,7 +65,7 @@ public class InMemoryFilmStorage implements FilmStorage{
     @Override
     public List<Film> getTopFilms(int count) {
         List<Film> films = new ArrayList<Film>();
-        for(Film f: topFilms) {
+        for (Film f: topFilms) {
             films.add(f);
         }
         if (films.size() > count) {
@@ -88,7 +88,7 @@ public class InMemoryFilmStorage implements FilmStorage{
                 return 1;
             } else if ((size1 != 0) && (size2 == 0)) {
                 return -1;
-            } else if((size1 == 0) && (size2 == 0)) {
+            } else if ((size1 == 0) && (size2 == 0)) {
                 return film1.getId() - film2.getId();
             } else {
                 return size2 - size1;
