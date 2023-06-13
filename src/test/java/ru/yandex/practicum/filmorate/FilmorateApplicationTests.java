@@ -10,9 +10,17 @@ import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.service.validation.Validation;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,11 +28,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmorateApplicationTests {
 	private User user;
 	private Film film;
+	private UserStorage userStorage;
+	private UserService userService;
+	private Validation validator;
+	private UserController userController;
+	private FilmStorage filmStorage;
+	private FilmService filmService;
+	private FilmController filmController;
 
 	@BeforeEach
 	void beforeEach() {
 		this.user = new User();
 		this.film = new Film();
+		this.userStorage = new InMemoryUserStorage();
+		this.userService = new UserService(userStorage);
+		this.validator = new Validation();
+		this.userController = new UserController(userService, validator);
+		this.filmStorage = new InMemoryFilmStorage();
+		this.filmService = new FilmService(filmStorage, userStorage);
+		this.filmController = new FilmController(validator, filmService);
 	}
 
 	@Test
@@ -34,7 +56,6 @@ class FilmorateApplicationTests {
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		userController.addUser(user);
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
@@ -49,7 +70,6 @@ class FilmorateApplicationTests {
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		final ValidationException exception = assertThrows(
 			ValidationException.class,
 			new Executable() {
@@ -59,7 +79,7 @@ class FilmorateApplicationTests {
 				}
 			}
 		);
-		assertEquals("некоректные данные пользователя", exception.getMessage());
+		assertEquals("логин должен одно слово, не может быть пустым", exception.getMessage());
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
 		assertEquals(0, savedUsers.size(),
@@ -72,7 +92,6 @@ class FilmorateApplicationTests {
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -82,7 +101,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("некоректные данные пользователя", exception.getMessage());
+		assertEquals("логин должен одно слово, не может быть пустым", exception.getMessage());
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
 		assertEquals(0, savedUsers.size(),
@@ -95,7 +114,6 @@ class FilmorateApplicationTests {
 		user.setLogin("dolore");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		userController.addUser(user);
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
@@ -112,7 +130,6 @@ class FilmorateApplicationTests {
 		user.setName("Nick Name");
 		user.setEmail("mailmail.ru");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -122,7 +139,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("некоректные данные пользователя", exception.getMessage());
+		assertEquals("некоректные данные в почте", exception.getMessage());
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
 		assertEquals(0, savedUsers.size(),
@@ -135,7 +152,6 @@ class FilmorateApplicationTests {
 		user.setLogin("Nick Name");
 		user.setName("Nick Name");
 		user.setBirthday(LocalDate.of(1946,8,20));
-		UserController userController = new UserController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -145,7 +161,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("некоректные данные пользователя", exception.getMessage());
+		assertEquals("некоректные данные в почте", exception.getMessage());
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
 		assertEquals(0, savedUsers.size(),
@@ -159,7 +175,6 @@ class FilmorateApplicationTests {
 		user.setName("Nick Name");
 		user.setEmail("mail@mail.ru");
 		user.setBirthday(LocalDate.of(2946,8,20));
-		UserController userController = new UserController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -169,7 +184,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("некоректные данные пользователя", exception.getMessage());
+		assertEquals("дата рождения не может быть больше текущей даты", exception.getMessage());
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
 		assertEquals(0, savedUsers.size(),
@@ -181,7 +196,6 @@ class FilmorateApplicationTests {
 	void validationNullUserBirthday() {
 		user.setLogin("dolore");
 		user.setEmail("mail@mail.ru");
-		UserController userController = new UserController();
 		userController.addUser(user);
 		final List<User> savedUsers = userController.getUsers();
 		assertNotNull(savedUsers,"Список пользователей не возвращается");
@@ -196,7 +210,6 @@ class FilmorateApplicationTests {
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
 		filmController.addFilm(film);
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
@@ -210,7 +223,6 @@ class FilmorateApplicationTests {
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -220,7 +232,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("ошибка в данных фильма", exception.getMessage());
+		assertEquals("имя фильма не должно быть пустым", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),
@@ -231,7 +243,6 @@ class FilmorateApplicationTests {
 	@DisplayName("добавление фильма все данные пустые кроме названия")
 	void validationFilmNullData() {
 		film.setName("nisi eiusmod");
-		FilmController filmController = new FilmController();
 		filmController.addFilm(film);
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
@@ -246,7 +257,6 @@ class FilmorateApplicationTests {
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1867,03,25));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -256,7 +266,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("ошибка в данных фильма", exception.getMessage());
+		assertEquals("дата релиза некоректная", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),
@@ -277,7 +287,6 @@ class FilmorateApplicationTests {
 				"hgjkhalgjhf fhgjahfgajkfhgf aghjfa hgjkfgha ahgjkafhgkj ghfka ahgjhfgkfhgkljafhgkjfghakjghfakjfgha");
 		film.setReleaseDate(LocalDate.of(1997,03,25));
 		film.setDuration(100);
-		FilmController filmController = new FilmController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -287,7 +296,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("ошибка в данных фильма", exception.getMessage());
+		assertEquals("слишком длинное описание фильма", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),
@@ -301,7 +310,6 @@ class FilmorateApplicationTests {
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
 		film.setDuration(-100);
-		FilmController filmController = new FilmController();
 		final ValidationException exception = assertThrows(
 				ValidationException.class,
 				new Executable() {
@@ -311,7 +319,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("ошибка в данных фильма", exception.getMessage());
+		assertEquals("продолжительность фильма должна быть положительным числом", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),
