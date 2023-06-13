@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -44,7 +45,7 @@ public class FilmService {
         final Optional<Film> film = storage.getFilmById(idFilm);
         final Optional<User> user = userStorage.getUserById(idUser);
         if (film.isEmpty() || user.isEmpty()) {
-            throw new RuntimeException("неверный id  фильма или пользователя");
+            throw new IncorrectIdException("неверный id  фильма или пользователя");
         }
         film.get().getLikes().add(idUser);
         storage.updateFilm(film.get());
@@ -55,7 +56,7 @@ public class FilmService {
         final Optional<Film> film = storage.getFilmById(idFilm);
         final Optional<User> user = userStorage.getUserById(idUser);
         if (film.isEmpty() || user.isEmpty()) {
-            throw new RuntimeException("неверный id  фильма");
+            throw new IncorrectIdException("неверный id  фильма");
         }
         film.get().getLikes().remove(idUser);
         storage.updateFilm(film.get());

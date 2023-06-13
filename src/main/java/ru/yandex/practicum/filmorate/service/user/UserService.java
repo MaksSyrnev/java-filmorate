@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -43,7 +44,7 @@ public class UserService {
         Optional<User> user = storage.getUserById(userId);
         Optional<User> friend = storage.getUserById(friendId);
         if (user.isEmpty() || friend.isEmpty()) {
-            throw new RuntimeException("Ошибка в данных");
+            throw new IncorrectIdException("Пользователь не найден");
         }
         Set<Integer> userFriends = user.get().getFriends();
         Set<Integer> friendFriends = friend.get().getFriends();
@@ -56,7 +57,7 @@ public class UserService {
         Optional<User> user = storage.getUserById(userId);
         Optional<User> friend = storage.getUserById(friendId);
         if (user.isEmpty() || friend.isEmpty()) {
-            throw new RuntimeException("Ошибка в данных");
+            throw new IncorrectIdException("Пользователь не найден");
         }
         Set<Integer> userFriends = user.get().getFriends();
         Set<Integer> friendFriends = friend.get().getFriends();
@@ -68,7 +69,7 @@ public class UserService {
     public List<User> getAllFriends(int id) {
         Optional<User> user = storage.getUserById(id);
         if (user.isEmpty()) {
-            throw new RuntimeException("Ошибка в данных");
+            throw new IncorrectIdException("Пользователь не найден");
         }
         Set<Integer> freinds = user.get().getFriends();
         ArrayList<User> userFriends = new ArrayList<>();
@@ -87,7 +88,7 @@ public class UserService {
         Optional<User> firstUser = storage.getUserById(firstUserId);
         Optional<User> secondUser = storage.getUserById(secondUserId);
         if (firstUser.isEmpty() || secondUser.isEmpty()) {
-            throw new RuntimeException("Ошибка в данных");
+            throw new IncorrectIdException("Пользователь не найден");
         }
         Set<Integer> firstFreinds = firstUser.get().getFriends();
         Set<Integer> secondFreinds = secondUser.get().getFriends();
