@@ -3,7 +3,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.TreeSet;
+import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -65,8 +70,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> getTopFilms(int count) {
         List<Film> films = new ArrayList<Film>();
-        for (Film f: topFilms) {
-            films.add(f);
+        for (Film film: topFilms) {
+            films.add(film);
         }
         if (films.size() > count) {
             return films.subList(0, count);
@@ -77,21 +82,21 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     Comparator<Film> comparatorOnLikes = new Comparator<Film>() {
         @Override
-        public int compare(Film film1, Film film2) {
-            int size1 = film1.getLikes().size();
-            int size2 = film2.getLikes().size();
+        public int compare(Film firstFilm, Film secondFilm) {
+            int sizeLikesFirstFilm = firstFilm.getLikes().size();
+            int sizeLikesSecondFilms = secondFilm.getLikes().size();
 
-            if (film1.getId() == film2.getId()) {
+            if (firstFilm.getId() == secondFilm.getId()) {
                 return 0;
             }
-            if ((size1 == 0) && (size2 != 0)) {
+            if ((sizeLikesFirstFilm == 0) && (sizeLikesSecondFilms != 0)) {
                 return 1;
-            } else if ((size1 != 0) && (size2 == 0)) {
+            } else if ((sizeLikesFirstFilm != 0) && (sizeLikesSecondFilms == 0)) {
                 return -1;
-            } else if ((size1 == 0) && (size2 == 0)) {
-                return film1.getId() - film2.getId();
+            } else if ((sizeLikesFirstFilm == 0) && (sizeLikesSecondFilms == 0)) {
+                return firstFilm.getId() - secondFilm.getId();
             } else {
-                return size2 - size1;
+                return sizeLikesSecondFilms - sizeLikesFirstFilm;
             }
         }
     };

@@ -1,9 +1,10 @@
-package ru.yandex.practicum.filmorate.service.user;
+package ru.yandex.practicum.filmorate.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -12,34 +13,40 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserStorage storage;
 
     @Autowired
-    public UserService(UserStorage storage) {
+    public UserServiceImpl(UserStorage storage) {
         this.storage = storage;
     }
 
+    @Override
     public User addUser(User user) {
         return storage.addUser(user);
     }
 
+    @Override
     public User updateUser(User user) {
         return storage.updateUser(user);
     }
 
+    @Override
     public int deleteUserById(int id) {
         return storage.deleteUserById(id);
     }
 
+    @Override
     public Optional<User> getUserById(int id) {
         return storage.getUserById(id);
     }
 
+    @Override
     public List<User> getAllUser() {
         return storage.getAllUser();
     }
 
+    @Override
     public User addFriendById(int userId, int friendId) {
         Optional<User> user = storage.getUserById(userId);
         Optional<User> friend = storage.getUserById(friendId);
@@ -53,6 +60,7 @@ public class UserService {
         return user.get();
     }
 
+    @Override
     public User deleteFriendById(int userId, int friendId) {
         Optional<User> user = storage.getUserById(userId);
         Optional<User> friend = storage.getUserById(friendId);
@@ -66,6 +74,7 @@ public class UserService {
         return user.get();
     }
 
+    @Override
     public List<User> getAllFriends(int id) {
         Optional<User> user = storage.getUserById(id);
         if (user.isEmpty()) {
@@ -82,6 +91,7 @@ public class UserService {
         return userFriends;
     }
 
+    @Override
     public List<User> getСommonFriends(int firstUserId, int secondUserId) {
         ArrayList<Integer> friends = new ArrayList<>();
         ArrayList<User> commonFriends = new ArrayList<>();

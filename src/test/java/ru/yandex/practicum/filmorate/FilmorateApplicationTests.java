@@ -4,18 +4,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
-import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.service.impl.FilmServiceImpl;
+import ru.yandex.practicum.filmorate.service.impl.UserServiceImpl;
 import ru.yandex.practicum.filmorate.service.validation.Validation;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -28,24 +28,26 @@ class FilmorateApplicationTests {
 	private User user;
 	private Film film;
 	private UserStorage userStorage;
-	private UserService userService;
+	private UserServiceImpl userServiceImpl;
 	private Validation validator;
 	private UserController userController;
 	private FilmStorage filmStorage;
-	private FilmService filmService;
+	private FilmServiceImpl filmService;
 	private FilmController filmController;
-
+	ApplicationContext context;
 	@BeforeEach
 	void beforeEach() {
 		this.user = new User();
 		this.film = new Film();
-		this.userStorage = new InMemoryUserStorage();
-		this.userService = new UserService(userStorage);
-		this.validator = new Validation();
-		this.userController = new UserController(userService, validator);
-		this.filmStorage = new InMemoryFilmStorage();
-		this.filmService = new FilmService(filmStorage, userStorage);
-		this.filmController = new FilmController(validator, filmService);
+		context =  SpringApplication.run(FilmorateApplication.class, args);
+		userController userController = context.getBean(UserController.class);
+//		this.userStorage = new InMemoryUserStorage();
+//		this.userService = new UserService(userStorage);
+//		this.validator = new Validation();
+//		this.userController = new UserController(userService, validator);
+//		this.filmStorage = new InMemoryFilmStorage();
+//		this.filmService = new FilmService(filmStorage, userStorage);
+//		this.filmController = new FilmController(validator, filmService);
 	}
 
 	@Test

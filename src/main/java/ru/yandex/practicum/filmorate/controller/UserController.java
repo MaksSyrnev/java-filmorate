@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.service.impl.UserServiceImpl;
 import ru.yandex.practicum.filmorate.service.validation.Validation;
 
 import javax.validation.Valid;
@@ -19,25 +19,25 @@ import java.util.Optional;
 @Slf4j
 @RestController
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
     private final Validation validator;
 
     @Autowired
-    public UserController(UserService userService, Validation validator) {
-        this.userService = userService;
+    public UserController(UserServiceImpl userServiceImpl, Validation validator) {
+        this.userServiceImpl = userServiceImpl;
         this.validator = validator;
     }
 
     @GetMapping("/users")
     public List<User> getUsers() {
         log.info("Получен запрос к эндпоинту: GET /users '");
-        return userService.getAllUser();
+        return userServiceImpl.getAllUser();
     }
 
     @GetMapping("/users/{id}")
     public User getUser(@PathVariable int id) {
         log.info("Получен запрос к эндпоинту: GET /users/{id}");
-        Optional<User> user = userService.getUserById(id);
+        Optional<User> user = userServiceImpl.getUserById(id);
         if (user.isEmpty()) {
             throw new IncorrectIdException("нет пользователя с таким id"); // ??
         }
@@ -48,7 +48,7 @@ public class UserController {
     public User addUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: POST /users ', Строка параметров запроса: '{}'", user);
         validateUser(user, "POST");
-        User newUser = userService.addUser(user);
+        User newUser = userServiceImpl.addUser(user);
         log.info("Ответ на запрос к эндпоинту: POST /users ', '{}'", user);
         return newUser;
     }
@@ -57,7 +57,7 @@ public class UserController {
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", user);
         validateUser(user, "PUT");
-        User updUser = userService.updateUser(user);
+        User updUser = userServiceImpl.updateUser(user);
         if (updUser != null) {
             log.info("Ответ на запрос к эндпоинту: PUT /users ', Строка параметров запроса: '{}'", updUser);
             return updUser;
@@ -69,29 +69,29 @@ public class UserController {
    @PutMapping("/users/{id}/friends/{friendId}")
    public User addUserFriend(@PathVariable int id, @PathVariable int friendId) {
        log.info("Получен запрос к эндпоинту: PUT /users/{}/friends/{} '", id, friendId);
-       return userService.addFriendById(id,friendId);
+       return userServiceImpl.addFriendById(id,friendId);
    }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
     public User deleteUserFriendById(@PathVariable int id, @PathVariable int friendId) {
         log.info("Получен запрос к эндпоинту: DELETE /users/{}/friends/{} '", id, friendId);
-        return userService.deleteFriendById(id, friendId);
+        return userServiceImpl.deleteFriendById(id, friendId);
     }
 
     @GetMapping("/users/{id}/friends")
     public List<User> getUserFriends(@PathVariable int id) {
         log.info("Получен запрос к эндпоинту: GET /users/{}/friends '", id);
-        return userService.getAllFriends(id);
+        return userServiceImpl.getAllFriends(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        return userService.getСommonFriends(id, otherId);
+        return userServiceImpl.getСommonFriends(id, otherId);
     }
 
     private void validateUser(User user, String method) {
         if ("PUT".equals(method)) {
-            Optional<User> userInMemory = userService.getUserById(user.getId());
+            Optional<User> userInMemory = userServiceImpl.getUserById(user.getId());
             if (userInMemory.isEmpty()) {
                 log.error("Ошибка в данных запроса к эндпоинту:{} /users ', : '{}'", method, user);
                 throw new IncorrectIdException("пользователь стаким id не найден");

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.impl.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.service.validation.Validation;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
@@ -20,10 +20,10 @@ import java.util.Optional;
 @RestController
 public class FilmController {
     private final Validation validator;
-    private final FilmService filmService;
+    private final FilmServiceImpl filmService;
 
     @Autowired
-    public FilmController(Validation validator, FilmService filmService) {
+    public FilmController(Validation validator, FilmServiceImpl filmService) {
         this.validator = validator;
         this.filmService = filmService;
     }
@@ -41,19 +41,15 @@ public class FilmController {
         if (film.isEmpty()) {
             throw new IncorrectIdException("wrong id");
         }
+        log.info("Ответ: GET /films/'{}' '", film.get());
         return film.get();
     }
 
-    @GetMapping("/films/popular") //?count={count}
-    public List<Film> getPopularFilms(@RequestParam Optional<Integer> count) {
-        int countValue = 0;
-        if (count.isEmpty()) {
-            countValue = 10;
-        } else {
-            countValue = count.get();
-        }
-        log.info("Получен запрос к эндпоинту: GET /films/popular?count={} '", countValue);
-        List<Film> films = filmService.getTopFilms(countValue);
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+        log.info("Получен запрос к эндпоинту: GET /films/popular?count={} '", count);
+        List<Film> films = filmService.getTopFilms(count);
+        log.info("Ответ: GET /films/popular?count={} ' {}", count,films);
         return films;
     }
 
