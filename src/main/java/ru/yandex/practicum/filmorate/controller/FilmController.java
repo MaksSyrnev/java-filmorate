@@ -6,25 +6,21 @@ import org.springframework.http.HttpStatus;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
-import ru.yandex.practicum.filmorate.service.impl.FilmServiceImpl;
-import ru.yandex.practicum.filmorate.service.validation.Validation;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
 
 @Slf4j
 @RestController
 public class FilmController {
-    private final Validation validator;
-    private final FilmServiceImpl filmService;
+    private final FilmService filmService;
 
     @Autowired
-    public FilmController(Validation validator, FilmServiceImpl filmService) {
-        this.validator = validator;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
@@ -37,12 +33,9 @@ public class FilmController {
     @GetMapping("/films/{id}")
     public Film getFilms(@PathVariable int id) {
         log.info("Получен запрос к эндпоинту: GET /films/'{}' '", id);
-        Optional<Film> film = filmService.getFilmById(id);
-        if (film.isEmpty()) {
-            throw new IncorrectIdException("wrong id");
-        }
-        log.info("Ответ: GET /films/'{}' '", film.get());
-        return film.get();
+        Film film = filmService.getFilmById(id);
+        log.info("Ответ: GET /films/'{}' '", film);
+        return film;
     }
 
     @GetMapping("/films/popular")
@@ -56,7 +49,6 @@ public class FilmController {
     @PostMapping("/films")
     public Film addFilm(@Valid @RequestBody  Film film) {
         log.info("Получен запрос к эндпоинту: POST /films ', Строка параметров запроса: '{}'", film);
-        validateFilm(film, "POST");
         Film newFilm = filmService.addFilm(film);
         log.info("Ответ на запрос к эндпоинту: POST /films ', : '{}'", film);
         return newFilm;
@@ -65,77 +57,40 @@ public class FilmController {
     @PutMapping("/films")
     public Film updateFilm(@Valid @RequestBody Film film) {
         log.info("запрос к эндпоинту: PUT /films ', Строка параметров запроса: '{}'", film);
-        validateFilm(film, "PUT");
         Film updFilm = filmService.updateFilm(film);
-        if (updFilm != null) {
-            log.info("Ответ на запрос к эндпоинту: PUT /films ', '{}'", updFilm);
-            return updFilm;
-        } else {
-            throw new IncorrectIdException("wrong id");
-        }
+        log.info("Ответ на запрос к эндпоинту: PUT /films ', '{}'", updFilm);
+        return updFilm;
     }
 
     @PutMapping("/films/{id}/like/{userId}")
     public Film addLikeFilm(@PathVariable int id, @PathVariable int userId) {
         log.info("запрос к эндпоинту: PUT /films/{}/like/{} ', Строка параметров запроса: ", id, userId);
         filmService.addLike(id, userId);
-        Optional<Film> film = filmService.getFilmById(id);
-        if (film.isPresent()) {
-            return film.get();
-        } else {
-            throw new IncorrectIdException("wrong id");
-        }
+        Film film = filmService.getFilmById(id);
+        return film;
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public Film deleteLikeFilm(@PathVariable int id, @PathVariable int userId) {
         log.info("запрос к эндпоинту: DELETE /films/'{}'/like/'{}' ', Строка параметров запроса: ", id, userId);
         filmService.deleteLike(id, userId);
-        Optional<Film> film = filmService.getFilmById(id);
-        if (film.isPresent()) {
-            return film.get();
-        } else {
-            throw new IncorrectIdException("wrong id");
-        }
-    }
-
-    private void validateFilm(Film film, String method)  {
-        if ("PUT".equals(method)) {
-            Optional<Film> filmInMemory = filmService.getFilmById(film.getId());
-            if (filmInMemory.isEmpty()) {
-                log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-                throw new IncorrectIdException("неверный id фильма");
-            }
-        }
-        if ((film.getName() == null) || film.getName().isBlank()) {
-            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-            throw new ValidationException("имя фильма не должно быть пустым");
-        }
-        String description = film.getDescription();
-        if (!validator.isLengthOk(description)) {
-            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-            throw new ValidationException("слишком длинное описание фильма");
-        }
-        LocalDate date = film.getReleaseDate();
-        if (!validator.isDateFilmOk(date)) {
-            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-            throw new ValidationException("дата релиза некоректная");
-        }
-        if (film.getDuration() < 0) {
-            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-            throw new ValidationException("продолжительность фильма должна быть положительным числом");
-        }
+        Film film = filmService.getFilmById(id);
+        return film;
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleValidationError(final ValidationException e) {
-        return Map.of("ValidationFilmError", e.getMessage());
+    public ErrorResponse handleValidationError(final ValidationException e) {
+        return new ErrorResponse(
+                "Ошибка данных", e.getMessage()
+        );
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleValidationError(final IncorrectIdException e) {
-        return Map.of("IncorrectId", e.getMessage());
+    public ErrorResponse handleValidationError(final IncorrectIdException e) {
+        return new ErrorResponse(
+                "Ошибка данных", e.getMessage()
+        );
     }
 }

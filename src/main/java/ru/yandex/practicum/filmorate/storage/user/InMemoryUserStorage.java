@@ -31,7 +31,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         int userId = user.getId();
         if (users.containsKey(userId)) {
             User currentUser = users.get(userId);
@@ -39,9 +39,9 @@ public class InMemoryUserStorage implements UserStorage {
             currentUser.setEmail(user.getEmail());
             currentUser.setBirthday(user.getBirthday());
             currentUser.setLogin(user.getLogin());
-            return users.get(userId);
+            return Optional.of(users.get(userId));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

@@ -1,37 +1,51 @@
 package ru.yandex.practicum.filmorate.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.validation.Validation;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.exeption.ValidationException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.ArrayList;
 
+@Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
+    private final Validation validator;
 
     @Autowired
-    public FilmServiceImpl(FilmStorage storage, UserStorage userStorage) {
+    public FilmServiceImpl(FilmStorage storage, UserStorage userStorage, Validation validator) {
         this.storage = storage;
         this.userStorage = userStorage;
+        this.validator = validator;
     }
 
     @Override
     public Film addFilm(Film film) {
+        validateFilm(film, "POST");
         return storage.addFilm(film);
     }
 
     @Override
     public Film updateFilm(Film film) {
-        return storage.updateFilm(film);
+        validateFilm(film, "PUT");
+        Optional<Film> updFilm = storage.updateFilm(film);
+        if (updFilm.isEmpty()) {
+            log.error("неверный id  фильма: id - '{}'", film.getId());
+            throw new IncorrectIdException("wrong id");
+        }
+        return updFilm.get();
     }
 
     @Override
@@ -40,8 +54,13 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Optional<Film> getFilmById(int id) {
-        return storage.getFilmById(id);
+    public Film getFilmById(int id) {
+        Optional<Film> film = storage.getFilmById(id);
+        if (film.isEmpty()) {
+            log.error("неверный id  фильма: id - '{}'", id);
+            throw new IncorrectIdException("wrong id");
+        }
+        return film.get();
     }
 
     @Override
@@ -54,6 +73,7 @@ public class FilmServiceImpl implements FilmService {
         final Optional<Film> film = storage.getFilmById(idFilm);
         final Optional<User> user = userStorage.getUserById(idUser);
         if (film.isEmpty() || user.isEmpty()) {
+            log.error("неверный id  фильма или пользователя: фильм - '{}', пользователь - '{}'", idFilm, idUser);
             throw new IncorrectIdException("неверный id  фильма или пользователя");
         }
         film.get().getLikes().add(idUser);
@@ -66,7 +86,8 @@ public class FilmServiceImpl implements FilmService {
         final Optional<Film> film = storage.getFilmById(idFilm);
         final Optional<User> user = userStorage.getUserById(idUser);
         if (film.isEmpty() || user.isEmpty()) {
-            throw new IncorrectIdException("неверный id  фильма");
+            log.error("неверный id  фильма или пользователя: фильм - '{}', пользователь - '{}'", idFilm, idUser);
+            throw new IncorrectIdException("неверный id фильма или пользователя");
         }
         film.get().getLikes().remove(idUser);
         storage.updateFilm(film.get());
@@ -78,4 +99,31 @@ public class FilmServiceImpl implements FilmService {
         return storage.getTopFilms(count);
     }
 
+    private void validateFilm(Film film, String method) {
+        if ("PUT".equals(method)) {
+            Optional<Film> filmInMemory = storage.getFilmById(film.getId());
+            if (filmInMemory.isEmpty()) {
+                log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+                throw new IncorrectIdException("неверный id фильма");
+            }
+        }
+        if ((film.getName() == null) || film.getName().isBlank()) {
+            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+            throw new ValidationException("имя фильма не должно быть пустым");
+        }
+        String description = film.getDescription();
+        if (!validator.isLengthOk(description)) {
+            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+            throw new ValidationException("слишком длинное описание фильма");
+        }
+        LocalDate date = film.getReleaseDate();
+        if (!validator.isDateFilmOk(date)) {
+            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+            throw new ValidationException("дата релиза некоректная");
+        }
+        if (film.getDuration() < 0) {
+            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
+            throw new ValidationException("продолжительность фильма должна быть положительным числом");
+        }
+    }
 }

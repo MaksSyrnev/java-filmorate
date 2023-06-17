@@ -12,7 +12,7 @@ public interface UserService {
 
     int deleteUserById(int id);
 
-    Optional<User> getUserById(int id);
+    User getUserById(int id);
 
     List<User> getAllUser();
 

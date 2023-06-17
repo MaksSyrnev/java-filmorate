@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Optional<Film> updateFilm(Film film) {
         int filmId = film.getId();
         if (films.containsKey(filmId)) {
             Film currentFilm = films.get(filmId);
@@ -42,16 +42,17 @@ public class InMemoryFilmStorage implements FilmStorage {
             currentFilm.setReleaseDate(film.getReleaseDate());
             currentFilm.setDuration(film.getDuration());
             topFilms.addAll(films.values());
-            return films.get(filmId);
+            return Optional.of(films.get(filmId));
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public int deleteFilmById(int id) {
         if (films.containsKey(id)) {
-            topFilms.remove(films.get(id));
+            topFilms.clear();
             films.remove(id);
+            topFilms.addAll(films.values());
             return id;
         }
         return 0;

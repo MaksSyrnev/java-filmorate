@@ -39,8 +39,8 @@ class FilmorateApplicationTests {
 	void beforeEach() {
 		this.user = new User();
 		this.film = new Film();
-		context =  SpringApplication.run(FilmorateApplication.class, args);
-		userController userController = context.getBean(UserController.class);
+//		context =  SpringApplication.run(FilmorateApplication.class, args);
+//		userController userController = context.getBean(UserController.class);
 //		this.userStorage = new InMemoryUserStorage();
 //		this.userService = new UserService(userStorage);
 //		this.validator = new Validation();
