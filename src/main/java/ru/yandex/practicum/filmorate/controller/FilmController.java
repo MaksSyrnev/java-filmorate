@@ -78,6 +78,12 @@ public class FilmController {
         return film;
     }
 
+    @DeleteMapping("/films")
+    public void deleteAllFilms() {
+        log.info("запрос к эндпоинту: DELETE /films ");
+        filmService.deleteAllFilms();
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationError(final ValidationException e) {

@@ -69,6 +69,17 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public int deleteAllFilms(){
+        int resultId = storage.deleteAllFilms();
+        if (resultId == 0) {
+            log.error("не получилось очистить таблицу фильмов: код ответа - '{}', ", resultId);
+            throw new ValidationException("не получилось очистить таблицу фильмов");
+        }
+        log.error("все фильмы удалены: код ответа - '{}', ", resultId);
+        return resultId;
+    }
+
+    @Override
     public List<Integer> addLike(int idFilm, int idUser) {
         final Optional<Film> film = storage.getFilmById(idFilm);
         final Optional<User> user = userStorage.getUserById(idUser);

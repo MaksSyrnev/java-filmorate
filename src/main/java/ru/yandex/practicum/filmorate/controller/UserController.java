@@ -76,6 +76,12 @@ public class UserController {
         return userService.getСommonFriends(id, otherId);
     }
 
+    @DeleteMapping("/users")
+    public void deleteAllUsers() {
+        log.info("Получен запрос к эндпоинту: DELETE /users ");
+        userService.deleteAllUsers();
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationError(final ValidationException e) {

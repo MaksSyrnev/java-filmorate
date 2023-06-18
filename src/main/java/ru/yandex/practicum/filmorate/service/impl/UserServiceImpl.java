@@ -148,6 +148,17 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public int deleteAllUsers() {
+        int idResult = storage.deleteAllUsers();
+        if (idResult == 0) {
+            log.error("Ошибка, не получилось очистить таблицу пользователей: код ответа - '{}'", idResult);
+            throw new ValidationException("не получилось очистить таблицу пользователей");
+        }
+        log.error("Пользователи удалены:  ', код ответа: '{}'", idResult);
+        return idResult;
+    }
+
     private void validateUser(User user, String method) {
         if ("PUT".equals(method)) {
             Optional<User> userInMemory = storage.getUserById(user.getId());

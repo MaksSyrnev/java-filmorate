@@ -69,6 +69,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public int deleteAllFilms() {
+        topFilms.clear();
+        films.clear();
+        if ((films.size() > 0) || (topFilms.size() > 0)) {
+            return 0;
+        }
+        return 1;
+    }
+
+    @Override
     public List<Film> getTopFilms(int count) {
         List<Film> films = new ArrayList<Film>();
         for (Film film: topFilms) {

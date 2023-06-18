@@ -13,6 +13,8 @@ public interface FilmService {
 
     int deleteFilmById(int id);
 
+    int deleteAllFilms();
+
     Film getFilmById(int id);
 
     List<Film> getAllFilms();

@@ -62,4 +62,13 @@ public class InMemoryUserStorage implements UserStorage {
     public List<User> getAllUser() {
         return new ArrayList<>(users.values());
     }
+
+    @Override
+    public int deleteAllUsers() {
+        users.clear();
+        if (users.size() > 0) {
+            return 0;
+        }
+        return 1;
+    }
 }
