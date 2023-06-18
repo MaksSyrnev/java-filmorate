@@ -8,7 +8,7 @@ public class ErrorResponse {
         this.error = error;
         this.description = description;
     }
-    
+
     public String getError() {
         return error;
     }
@@ -16,4 +16,5 @@ public class ErrorResponse {
     public String getDescription() {
         return description;
     }
+
 }
