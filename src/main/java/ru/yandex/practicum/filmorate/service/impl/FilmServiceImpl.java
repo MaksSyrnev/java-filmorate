@@ -69,7 +69,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public int deleteAllFilms(){
+    public int deleteAllFilms() {
         int resultId = storage.deleteAllFilms();
         if (resultId == 0) {
             log.error("не получилось очистить таблицу фильмов: код ответа - '{}', ", resultId);

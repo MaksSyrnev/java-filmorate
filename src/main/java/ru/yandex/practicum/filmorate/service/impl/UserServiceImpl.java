@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = storage.getUserById(id);
         if (user.isEmpty()) {
             log.error("Ошибка в данных, Пользователь не найден: ', user - '{}' ", id);
-            throw new IncorrectIdException("нет пользователя с таким id"); // ??
+            throw new IncorrectIdException("нет пользователя с таким id");
         }
         return user.get();
     }
