@@ -228,7 +228,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("addFilm.film.name: не должно быть пустым", exception.getMessage());
+		assertEquals("addFilm.film.name: must not be blank", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),
