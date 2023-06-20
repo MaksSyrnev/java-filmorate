@@ -2,13 +2,9 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
-import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -82,19 +78,4 @@ public class UserController {
         userService.deleteAllUsers();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationError(final ValidationException e) {
-        return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleValidationError(final IncorrectIdException e) {
-        return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
-    }
 }

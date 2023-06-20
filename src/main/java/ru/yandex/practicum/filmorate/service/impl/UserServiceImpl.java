@@ -31,12 +31,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addUser(User user) {
         validateUser(user, "POST");
+        String name = user.getName();
+        if ((name == null) || name.isBlank()) {
+            user.setName(user.getLogin());
+        }
         return storage.addUser(user);
     }
 
     @Override
     public User updateUser(User user) {
         validateUser(user, "PUT");
+        String name = user.getName();
+        if ((name == null) || name.isBlank()) {
+            user.setName(user.getLogin());
+        }
         Optional<User> updUser = storage.updateUser(user);
         if (updUser.isEmpty()) {
             log.error("Ошибка в данных, Пользователь не найден: ', user - '{}' ", user.getId());
@@ -174,7 +182,7 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("некоректные данные в почте");
         }
         String login = user.getLogin();
-        if ((login == null) || login.isBlank() || validator.isHasSpaceSymbol(login)) {
+        if (validator.isHasSpaceSymbol(login)) {
             log.error("Ошибка в данных запроса к эндпоинту:{} /users ', : '{}'", method, user);
             throw new ValidationException("логин должен одно слово, не может быть пустым");
         }

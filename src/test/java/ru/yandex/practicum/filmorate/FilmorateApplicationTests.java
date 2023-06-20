@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -218,8 +219,8 @@ class FilmorateApplicationTests {
 		film.setDescription("adipisicing");
 		film.setReleaseDate(LocalDate.of(1967,03,25));
 		film.setDuration(100);
-		final ValidationException exception = assertThrows(
-				ValidationException.class,
+		final ConstraintViolationException exception = assertThrows(
+				ConstraintViolationException.class,
 				new Executable() {
 					@Override
 					public void execute() {
@@ -227,7 +228,7 @@ class FilmorateApplicationTests {
 					}
 				}
 		);
-		assertEquals("имя фильма не должно быть пустым", exception.getMessage());
+		assertEquals("addFilm.film.name: не должно быть пустым", exception.getMessage());
 		final List<Film> savedFilms = filmController.getFilms();
 		assertNotNull(savedFilms,"Список фильмов не возвращается");
 		assertEquals(0, savedFilms.size(),

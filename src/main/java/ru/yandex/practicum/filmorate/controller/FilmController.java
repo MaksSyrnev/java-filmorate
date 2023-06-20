@@ -2,19 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
+import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+import javax.validation.constraints.Positive;
 
 import java.util.List;
 
 
 @Slf4j
+@Validated
 @RestController
 public class FilmController {
     private final FilmService filmService;
@@ -39,7 +38,7 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") int count) {
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") @Positive int count) {
         log.info("Получен запрос к эндпоинту: GET /films/popular?count={} '", count);
         List<Film> films = filmService.getTopFilms(count);
         log.info("Ответ: GET /films/popular?count={} ' {}", count,films);
@@ -84,19 +83,4 @@ public class FilmController {
         filmService.deleteAllFilms();
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationError(final ValidationException e) {
-        return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleValidationError(final IncorrectIdException e) {
-        return new ErrorResponse(
-                "Ошибка данных", e.getMessage()
-        );
-    }
 }

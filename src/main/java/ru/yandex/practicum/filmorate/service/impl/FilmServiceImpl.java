@@ -118,10 +118,6 @@ public class FilmServiceImpl implements FilmService {
                 throw new IncorrectIdException("неверный id фильма");
             }
         }
-        if ((film.getName() == null) || film.getName().isBlank()) {
-            log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-            throw new ValidationException("имя фильма не должно быть пустым");
-        }
         String description = film.getDescription();
         if (!validator.isLengthOk(description)) {
             log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);

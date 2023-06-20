@@ -4,14 +4,15 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private int id;
-    private final HashMap<Integer,User> users;
+    private final Map<Integer,User> users;
 
     public InMemoryUserStorage() {
         this.id = 0;
@@ -22,10 +23,6 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         id++;
         user.setId(id);
-        String name = user.getName();
-        if ((name == null) || name.isBlank()) {
-            user.setName(user.getLogin());
-        }
         users.put(id, user);
         return users.get(id);
     }

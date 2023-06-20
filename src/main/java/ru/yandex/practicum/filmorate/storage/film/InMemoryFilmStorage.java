@@ -3,23 +3,25 @@ package ru.yandex.practicum.filmorate.storage.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.HashMap;
-import java.util.TreeSet;
-import java.util.Optional;
+import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.ArrayList;
-import java.util.Comparator;
+
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private int id;
-    private final HashMap<Integer, Film> films;
-    private final TreeSet<Film> topFilms;
+    private final Map<Integer, Film> films;
+    private final List<Film> topFilms;
+    private final FilmLikeComparator comporator;
 
     public InMemoryFilmStorage() {
         id = 0;
         films = new HashMap<>();
-        topFilms = new TreeSet<>(comparatorOnLikes);
+        topFilms = new ArrayList<Film>();
+        comporator = new FilmLikeComparator();
     }
 
     @Override
@@ -28,6 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.setId(id);
         films.put(id,film);
         topFilms.add(film);
+        topFilms.sort(comporator);
         return film;
     }
 
@@ -36,13 +39,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         int filmId = film.getId();
         if (films.containsKey(filmId)) {
             Film currentFilm = films.get(filmId);
-            topFilms.clear();
             currentFilm.setName(film.getName());
             currentFilm.setDescription(film.getDescription());
             currentFilm.setReleaseDate(film.getReleaseDate());
             currentFilm.setDuration(film.getDuration());
-            topFilms.addAll(films.values());
-            return Optional.of(films.get(filmId));
+            topFilms.sort(comporator);
+            return Optional.of(currentFilm);
         }
         return Optional.empty();
     }
@@ -50,9 +52,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public int deleteFilmById(int id) {
         if (films.containsKey(id)) {
-            topFilms.clear();
+            Film currentFilm = films.get(id);
+            topFilms.remove(currentFilm);
             films.remove(id);
-            topFilms.addAll(films.values());
             return id;
         }
         return 0;
@@ -80,36 +82,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopFilms(int count) {
-        List<Film> films = new ArrayList<Film>();
-        for (Film film: topFilms) {
-            films.add(film);
+        if (count < topFilms.size()) {
+            return new ArrayList<>(topFilms.subList(0, count));
         }
-        if (films.size() > count) {
-            return films.subList(0, count);
-        } else {
-            return films;
-        }
+        return new ArrayList<>(topFilms);
     }
-
-    Comparator<Film> comparatorOnLikes = new Comparator<Film>() {
-        @Override
-        public int compare(Film firstFilm, Film secondFilm) {
-            int sizeLikesFirstFilm = firstFilm.getLikes().size();
-            int sizeLikesSecondFilms = secondFilm.getLikes().size();
-
-            if (firstFilm.getId() == secondFilm.getId()) {
-                return 0;
-            }
-            if ((sizeLikesFirstFilm == 0) && (sizeLikesSecondFilms != 0)) {
-                return 1;
-            } else if ((sizeLikesFirstFilm != 0) && (sizeLikesSecondFilms == 0)) {
-                return -1;
-            } else if ((sizeLikesFirstFilm == 0) && (sizeLikesSecondFilms == 0)) {
-                return firstFilm.getId() - secondFilm.getId();
-            } else {
-                return sizeLikesSecondFilms - sizeLikesFirstFilm;
-            }
-        }
-    };
 
 }
