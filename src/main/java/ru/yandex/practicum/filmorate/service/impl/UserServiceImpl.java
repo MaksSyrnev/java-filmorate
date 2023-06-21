@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(int id) {
-        User user = storage.getUserById(id).orElseThrow(()->new IncorrectIdException("нет пользователя с таким id"));
+        User user = storage.getUserById(id).orElseThrow(() -> new IncorrectIdException("нет пользователя с таким id"));
         return user;
     }
 
@@ -124,8 +124,8 @@ public class UserServiceImpl implements UserService {
         } else if (secondFreinds.isEmpty()) {
             return commonFriends;
         } else {
-            return firstFreinds.stream().
-                    filter(secondFreinds::contains)
+            return firstFreinds.stream()
+                    .filter(secondFreinds::contains)
                     .map(this::getUserById)
                     .collect(Collectors.toList());
         }

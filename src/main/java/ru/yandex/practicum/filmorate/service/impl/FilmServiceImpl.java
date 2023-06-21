@@ -54,7 +54,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getFilmById(int id) {
-        Film film = storage.getFilmById(id).orElseThrow(()->new IncorrectIdException("wrong id"));
+        Film film = storage.getFilmById(id).orElseThrow(() -> new IncorrectIdException("wrong id"));
         return film;
     }
 
