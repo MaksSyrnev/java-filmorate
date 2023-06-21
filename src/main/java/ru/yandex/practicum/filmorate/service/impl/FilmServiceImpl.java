@@ -42,7 +42,6 @@ public class FilmServiceImpl implements FilmService {
         validateFilm(film, "PUT");
         Optional<Film> updFilm = storage.updateFilm(film);
         if (updFilm.isEmpty()) {
-            log.error("неверный id  фильма: id - '{}'", film.getId());
             throw new IncorrectIdException("wrong id");
         }
         return updFilm.get();
@@ -55,12 +54,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film getFilmById(int id) {
-        Optional<Film> film = storage.getFilmById(id);
-        if (film.isEmpty()) {
-            log.error("неверный id  фильма: id - '{}'", id);
-            throw new IncorrectIdException("wrong id");
-        }
-        return film.get();
+        Film film = storage.getFilmById(id).orElseThrow(()->new IncorrectIdException("wrong id"));
+        return film;
     }
 
     @Override
@@ -111,13 +106,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private void validateFilm(Film film, String method) {
-        if ("PUT".equals(method)) {
-            Optional<Film> filmInMemory = storage.getFilmById(film.getId());
-            if (filmInMemory.isEmpty()) {
-                log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
-                throw new IncorrectIdException("неверный id фильма");
-            }
-        }
         String description = film.getDescription();
         if (!validator.isLengthOk(description)) {
             log.error("Ошибка в данных запроса к эндпоинту:{} /films ', : '{}'", method, film);
