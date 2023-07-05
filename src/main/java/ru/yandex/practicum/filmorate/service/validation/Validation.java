@@ -1,7 +1,11 @@
-package ru.yandex.practicum.filmorate.validation;
+package ru.yandex.practicum.filmorate.service.validation;
+
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
+
+@Service
 public class Validation {
     private static final int FILM_DESCRIPTION_LENGTH = 200;
     private static final int START_FILM_YEAR = 1895;
