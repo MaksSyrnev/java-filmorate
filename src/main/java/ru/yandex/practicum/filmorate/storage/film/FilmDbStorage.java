@@ -106,4 +106,5 @@ public class FilmDbStorage implements FilmStorage{
         film.setMpa(new Mpa(resultSet.getInt("rating_id"), resultSet.getString("mpa_name")));
         return film;
     }
+
 }
