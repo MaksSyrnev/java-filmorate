@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private final Validation validator;
 
     @Autowired
-    public UserServiceImpl(UserStorage storage, Validation validator) {
+    public UserServiceImpl(@Qualifier("UserDbStorage") UserStorage storage, Validation validator) {
         this.storage = storage;
         this.validator = validator;
     }

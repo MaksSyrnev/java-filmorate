@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -20,12 +21,13 @@ import java.util.ArrayList;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
-    private final FilmStorage storage;
+    protected final FilmStorage storage;
     private final UserStorage userStorage;
     private final Validation validator;
 
     @Autowired
-    public FilmServiceImpl(FilmStorage storage, UserStorage userStorage, Validation validator) {
+    public FilmServiceImpl( @Qualifier("FilmDbStorage") FilmStorage storage,
+                            @Qualifier("UserDbStorage") UserStorage userStorage, Validation validator) {
         this.storage = storage;
         this.userStorage = userStorage;
         this.validator = validator;

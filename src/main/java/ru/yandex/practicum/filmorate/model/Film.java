@@ -19,8 +19,8 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
     private long duration;
-    private Set<String> genre = new HashSet<>();
-    private String ratingMpa;
+    private Mpa mpa;
+    private final Set<Integer> genres = new HashSet<>();
     @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
 

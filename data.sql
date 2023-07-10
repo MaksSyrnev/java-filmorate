@@ -1,4 +1,3 @@
-
 INSERT INTO rating_mpa (name)
 VALUES ('G');
 
