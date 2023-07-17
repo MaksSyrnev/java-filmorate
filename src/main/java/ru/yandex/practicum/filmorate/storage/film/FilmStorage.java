@@ -21,4 +21,8 @@ public interface FilmStorage {
 
     int deleteAllFilms();
 
+    int addLikeFilm(int film_id, int user_id);
+
+    int deleteLikeFilm(int film_id, int user_id);
+
 }

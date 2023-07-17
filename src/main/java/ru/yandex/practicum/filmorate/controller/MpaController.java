@@ -28,9 +28,9 @@ public class MpaController {
 
     @GetMapping("/mpa/{id}")
     public Mpa getMpa(@PathVariable int id) {
-        log.info("Получен запрос к эндпоинту: GET /mpa/{id}");
+        log.info("Получен запрос к эндпоинту: GET /mpa/{} ", id);
         Mpa mpa = mpaService.getMpaById(id);
-        log.info("Ответ: GET /mpa/{id} ', '{}' ", mpa);
+        log.info("Ответ: GET /mpa/{} ', '{}' ", id, mpa);
         return mpa;
     }
 

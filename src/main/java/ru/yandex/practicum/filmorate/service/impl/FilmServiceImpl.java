@@ -85,8 +85,11 @@ public class FilmServiceImpl implements FilmService {
             throw new IncorrectIdException("неверный id  фильма или пользователя");
         }
         film.get().getLikes().add(idUser);
-        storage.updateFilm(film.get());
-        return new ArrayList<>(film.get().getLikes());
+        int i = storage.addLikeFilm(idFilm, idUser);
+        if (i > 0) {
+            return new ArrayList<>(film.get().getLikes());
+        }
+        return new ArrayList<>();
     }
 
     @Override
@@ -98,8 +101,11 @@ public class FilmServiceImpl implements FilmService {
             throw new IncorrectIdException("неверный id фильма или пользователя");
         }
         film.get().getLikes().remove(idUser);
-        storage.updateFilm(film.get());
-        return new ArrayList<>(film.get().getLikes());
+        int i = storage.deleteLikeFilm(idFilm, idUser);
+        if (i > 0) {
+            return new ArrayList<>(film.get().getLikes());
+        }
+        return new ArrayList<>();
     }
 
     @Override

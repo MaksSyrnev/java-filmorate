@@ -88,4 +88,14 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(topFilms);
     }
 
+    @Override
+    public int addLikeFilm(int film_id, int user_id) {
+        return 0;
+    };
+
+    @Override
+    public int deleteLikeFilm(int film_id, int user_id) {
+        return 0;
+    }
+
 }
