@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -11,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,12 +47,12 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "update users set " +
                 "login = ?, name = ?, email = ?, birthday = ? " +
                 "where id = ?";
-        int i = jdbcTemplate.update(sqlQuery
-                , user.getLogin()
-                , user.getName()
-                , user.getEmail()
-                , user.getBirthday()
-                , user.getId());
+        int i = jdbcTemplate.update(sqlQuery,
+                user.getLogin(),
+                user.getName(),
+                user.getEmail(),
+                user.getBirthday(),
+                user.getId());
         if (i > 0) {
             return Optional.of(user);
         } else {
@@ -92,6 +94,25 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.update(sql);
     }
 
+    @Override
+    public int addFriendById(int userId, int friendId) {
+        String sqlQuery = "insert into friends(user_id, friend_id) values (?, ?)";
+        return jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public int deleteFriendById(int userId, int friendId) {
+        String sqlQuery = "delete from friends where user_id = ? and friend_id = ? ";
+        return jdbcTemplate.update(sqlQuery, userId, friendId);
+    }
+
+    @Override
+    public List<Integer> getAllIdFriends(int id) {
+        String sqlQuery = "select friend_id from friends where user_id = ?";
+        List<Integer> friends = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToInteger(rs, rowNum), id);
+        return friends;
+    }
+
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
         User user = new User();
         user.setId(rs.getInt("id"));
@@ -100,6 +121,10 @@ public class UserDbStorage implements UserStorage {
         user.setEmail(rs.getString("email"));
         user.setBirthday(rs.getDate("birthday").toLocalDate());
         return user;
+    }
+
+    private int mapRowToInteger(ResultSet resultSet, int rowNum) throws SQLException {
+        return resultSet.getInt("friend_id");
     }
 
 }

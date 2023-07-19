@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.service.validation.Validation;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,10 +68,13 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty() || friend.isEmpty()) {
             throw new IncorrectIdException("Пользователь не найден");
         }
-        Set<Integer> userFriends = user.get().getFriends();
-        Set<Integer> friendFriends = friend.get().getFriends();
-        userFriends.add(friendId);
-        friendFriends.add(userId);
+        int i = storage.addFriendById(userId, friendId);
+        if (i <= 0) {
+            throw new IncorrectIdException("Пользователь уже добавлен в друзья");
+        }
+        Set<Integer> userFriends = new HashSet<>(storage.getAllIdFriends(userId));
+        user.get().getFriends().clear();
+        user.get().getFriends().addAll(userFriends);
         return user.get();
     }
 
@@ -85,10 +85,13 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty() || friend.isEmpty()) {
             throw new IncorrectIdException("Пользователь не найден");
         }
-        Set<Integer> userFriends = user.get().getFriends();
-        Set<Integer> friendFriends = friend.get().getFriends();
-        userFriends.remove(friendId);
-        friendFriends.remove(userId);
+        int i = storage.deleteFriendById(userId, friendId);
+        if (i <= 0) {
+            throw new IncorrectIdException("Пользователь не найден в друзьях");
+        }
+        Set<Integer> userFriends = new HashSet<>(storage.getAllIdFriends(userId));
+        user.get().getFriends().clear();
+        user.get().getFriends().addAll(userFriends);
         return user.get();
     }
 
@@ -98,9 +101,12 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty()) {
             throw new IncorrectIdException("Пользователь не найден");
         }
-        Set<Integer> freinds = user.get().getFriends();
         ArrayList<User> userFriends = new ArrayList<>();
-        for (Integer i : freinds) {
+        Set<Integer> idFriends = new HashSet<>(storage.getAllIdFriends(id));
+        if (idFriends.isEmpty()) {
+            return userFriends;
+        }
+        for (Integer i : idFriends) {
             Optional<User> currentUser = storage.getUserById(i);
             if (currentUser.isPresent()) {
                 userFriends.add(currentUser.get());
@@ -116,10 +122,9 @@ public class UserServiceImpl implements UserService {
         if (firstUser.isEmpty() || secondUser.isEmpty()) {
             throw new IncorrectIdException("Пользователь не найден");
         }
-        ArrayList<Integer> friends = new ArrayList<>();
         ArrayList<User> commonFriends = new ArrayList<>();
-        Set<Integer> firstFreinds = firstUser.get().getFriends();
-        Set<Integer> secondFreinds = secondUser.get().getFriends();
+        Set<Integer> firstFreinds = new HashSet<>(storage.getAllIdFriends(firstUser.get().getId()));
+        Set<Integer> secondFreinds = new HashSet<>(storage.getAllIdFriends(secondUser.get().getId()));
         if (firstFreinds.isEmpty()) {
             return commonFriends;
         } else if (secondFreinds.isEmpty()) {

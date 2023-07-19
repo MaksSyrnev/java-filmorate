@@ -2,30 +2,32 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.genre.GenreComporator;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 @Component("FilmDbStorage")
 public class FilmDbStorage implements FilmStorage{
     private final JdbcTemplate jdbcTemplate;
+    private final GenreStorage genreStorage;
+    private final GenreComporator genreComporator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate=jdbcTemplate;
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreStorage genreStorage, GenreComporator genreComporator){
+        this.jdbcTemplate = jdbcTemplate;
+        this.genreStorage = genreStorage;
+        this.genreComporator = genreComporator;
     }
 
     @Override
@@ -52,7 +54,11 @@ public class FilmDbStorage implements FilmStorage{
                 "values (?, ?)";
         for (Genre currentG: genres ) {
             int genreId = currentG.getId();
-            jdbcTemplate.update(sqlQueryGenres, filmId, genreId);
+            Optional<Genre> genre = genreStorage.getGenreById(genreId);
+            if (genre.isPresent()) {
+                jdbcTemplate.update(sqlQueryGenres, filmId, genreId);
+                currentG.setName(genre.get().getName());
+            }
         }
         return film;
     }
@@ -74,7 +80,7 @@ public class FilmDbStorage implements FilmStorage{
             return Optional.empty();
         }
         List<Genre> genresNew = new ArrayList<>(film.getGenres());
-        List<Genre> genresOld = getIdGenreFilm(filmId);
+        List<Genre> genresOld = getAllGenreByFilmId(filmId);
         if (genresOld.isEmpty() && genresNew.isEmpty()) {
             return Optional.of(film);
         } else if (genresNew.isEmpty()) {
@@ -87,8 +93,15 @@ public class FilmDbStorage implements FilmStorage{
                     "values (?, ?)";
             for (Genre currentG: genresNew ) {
                 int genreId = currentG.getId();
-                jdbcTemplate.update(sqlAddGenres, filmId, genreId);
+                Optional<Genre> genre = genreStorage.getGenreById(genreId);
+                if (genre.isPresent()) {
+                    jdbcTemplate.update(sqlAddGenres, filmId, genreId);
+                    currentG.setName(genre.get().getName());
+                }
             }
+            genresNew.sort(genreComporator);
+            film.getGenres().clear();
+            film.getGenres().addAll(genresNew);
         }
         return Optional.of(film);
     }
@@ -108,7 +121,14 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID WHERE f.id = ?";
             Optional<Film> film = Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilms, id));
             if (film.isPresent()) {
-                List<Genre> genres = getIdGenreFilm(id);
+                List<Genre> genres = getAllGenreByFilmId(id);
+                for (Genre currentG: genres ) {
+                    int genreId = currentG.getId();
+                    Optional<Genre> genre = genreStorage.getGenreById(genreId);
+                    if (genre.isPresent()) {
+                        currentG.setName(genre.get().getName());
+                    }
+                }
                 film.get().getGenres().addAll(genres);
                 film.get().getLikes().addAll(getIdLikeOfFilm(id));
             }
@@ -126,7 +146,14 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID ";
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilms(rs, rowNum));
         for (Film f: films) {
-            List<Genre> genres = getIdGenreFilm(f.getId());
+            List<Genre> genres = getAllGenreByFilmId(f.getId());
+            for (Genre currentG: genres ) {
+                int genreId = currentG.getId();
+                Optional<Genre> genre = genreStorage.getGenreById(genreId);
+                if (genre.isPresent()) {
+                    currentG.setName(genre.get().getName());
+                }
+            }
             f.getGenres().addAll(genres);
             f.getLikes().addAll(getIdLikeOfFilm(f.getId()));
         }
@@ -135,7 +162,7 @@ public class FilmDbStorage implements FilmStorage{
 
     @Override
     public List<Film> getTopFilms(int count) {
-        String sql = "SELECT f.id AS id, f.name AS name, f.description AS description, " +
+        String sql = "select f.id AS id, f.name AS name, f.description AS description, " +
                 "f.duration AS duration, f.release_date AS release_date, f.rating_id AS rating_id, " +
                 "r.name AS mpa_name " +
                 "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID "+
@@ -145,7 +172,7 @@ public class FilmDbStorage implements FilmStorage{
                 "limit ?";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> mapRowToFilms(rs, rowNum), count);
         for (Film f: films) {
-            List<Genre> genres = getIdGenreFilm(f.getId());
+            List<Genre> genres = getAllGenreByFilmId(f.getId());
             f.getGenres().addAll(genres);
             f.getLikes().addAll(getIdLikeOfFilm(f.getId()));
         }
@@ -170,13 +197,13 @@ public class FilmDbStorage implements FilmStorage{
         return jdbcTemplate.update(sqlQuery, filmId, userId);
     };
 
-    private List<Genre> getIdGenreFilm(int id) {
-        String sqlQuery = "SELECT genre_id FROM films_genres WHERE film_id = ? ";
+    private List<Genre> getAllGenreByFilmId(int id) {
+        String sqlQuery = "select genre_id FROM films_genres WHERE film_id = ? ";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToIdGenre(rs, rowNum), id);
     }
 
     private List<Integer> getIdLikeOfFilm(int id) {
-        String sqlQuery = "SELECT user_id FROM films_like_users WHERE film_id = ? ";
+        String sqlQuery = "select user_id FROM films_like_users WHERE film_id = ? ";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToInteger(rs, rowNum), id);
     }
 
