@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class GenreDbStorage implements GenreStorage{
+public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreComporator comporator;
 
@@ -35,7 +35,7 @@ public class GenreDbStorage implements GenreStorage{
         try {
             String sqlQuery = "SELECT id, name FROM genres WHERE id = ?";
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id));
-        } catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }

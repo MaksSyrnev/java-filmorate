@@ -9,7 +9,7 @@ import java.util.Comparator;
 public class MpaComporator implements Comparator<Mpa> {
     @Override
     public int compare(Mpa o1, Mpa o2) {
-        return o1.getId()-o2.getId();
+        return o1.getId() - o2.getId();
     }
 
 }
