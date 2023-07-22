@@ -26,7 +26,7 @@ public class FilmServiceImpl implements FilmService {
     private final Validation validator;
 
     @Autowired
-    public FilmServiceImpl( @Qualifier("FilmDbStorage") FilmStorage storage,
+    public FilmServiceImpl(@Qualifier("FilmDbStorage") FilmStorage storage,
                             @Qualifier("UserDbStorage") UserStorage userStorage, Validation validator) {
         this.storage = storage;
         this.userStorage = userStorage;
