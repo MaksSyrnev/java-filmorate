@@ -89,12 +89,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public int addLikeFilm(int film_id, int user_id) {
+    public int addLikeFilm(int filmId, int userId) {
         return 0;
-    };
+    }
 
     @Override
-    public int deleteLikeFilm(int film_id, int user_id) {
+    public int deleteLikeFilm(int filmId, int userId) {
         return 0;
     }
 
