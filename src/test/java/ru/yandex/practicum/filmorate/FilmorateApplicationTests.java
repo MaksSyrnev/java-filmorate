@@ -36,7 +36,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	@DisplayName("Добавление пользователя")
-	public void testAddUser(){
+	public void testAddUser() {
 		User user = new User();
 		user.setLogin("dolore");
 		user.setName("Nick Name");
@@ -49,7 +49,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	public void testUpdateUser(){
+	public void testUpdateUser() {
 		User user = new User();
 		user.setLogin("dolore");
 		user.setName("Nick Name");
@@ -82,7 +82,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	public void testDeleteUserById(){
+	public void testDeleteUserById() {
 		User user = new User();
 		user.setLogin("dolore");
 		user.setName("Nick Name Updated");
