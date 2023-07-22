@@ -168,7 +168,7 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID "+
                 "LEFT OUTER JOIN FILMS_LIKE_USERS l ON f.ID = l.FILM_ID " +
                 "GROUP BY f.ID " +
-                "ORDER BY count(l.USER_ID) DESC, f.ID asc " +
+                "ORDER BY count(l.USER_ID) DESC, f.ID ASC " +
                 "limit ?";
         List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> mapRowToFilms(rs, rowNum), count);
         for (Film f: films) {
