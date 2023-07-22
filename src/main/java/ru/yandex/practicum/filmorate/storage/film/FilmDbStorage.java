@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Component("FilmDbStorage")
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
     private final GenreComporator genreComporator;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreStorage genreStorage, GenreComporator genreComporator){
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreStorage genreStorage, GenreComporator genreComporator) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreStorage = genreStorage;
         this.genreComporator = genreComporator;
@@ -52,7 +52,7 @@ public class FilmDbStorage implements FilmStorage{
         }
         String sqlQueryGenres = "insert into films_genres(film_id, genre_id) " +
                 "values (?, ?)";
-        for (Genre currentG: genres ) {
+        for (Genre currentG: genres) {
             int genreId = currentG.getId();
             Optional<Genre> genre = genreStorage.getGenreById(genreId);
             if (genre.isPresent()) {
@@ -91,7 +91,7 @@ public class FilmDbStorage implements FilmStorage{
             int iDel = jdbcTemplate.update(sqlDel, filmId);
             String sqlAddGenres = "insert into films_genres(film_id, genre_id) " +
                     "values (?, ?)";
-            for (Genre currentG: genresNew ) {
+            for (Genre currentG: genresNew) {
                 int genreId = currentG.getId();
                 Optional<Genre> genre = genreStorage.getGenreById(genreId);
                 if (genre.isPresent()) {
@@ -122,7 +122,7 @@ public class FilmDbStorage implements FilmStorage{
             Optional<Film> film = Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilms, id));
             if (film.isPresent()) {
                 List<Genre> genres = getAllGenreByFilmId(id);
-                for (Genre currentG: genres ) {
+                for (Genre currentG: genres) {
                     int genreId = currentG.getId();
                     Optional<Genre> genre = genreStorage.getGenreById(genreId);
                     if (genre.isPresent()) {
@@ -147,7 +147,7 @@ public class FilmDbStorage implements FilmStorage{
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToFilms(rs, rowNum));
         for (Film f: films) {
             List<Genre> genres = getAllGenreByFilmId(f.getId());
-            for (Genre currentG: genres ) {
+            for (Genre currentG: genres) {
                 int genreId = currentG.getId();
                 Optional<Genre> genre = genreStorage.getGenreById(genreId);
                 if (genre.isPresent()) {
@@ -165,7 +165,7 @@ public class FilmDbStorage implements FilmStorage{
         String sql = "select f.id AS id, f.name AS name, f.description AS description, " +
                 "f.duration AS duration, f.release_date AS release_date, f.rating_id AS rating_id, " +
                 "r.name AS mpa_name " +
-                "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID "+
+                "FROM films AS f INNER JOIN mpa AS r ON f.RATING_ID = r.ID " +
                 "LEFT OUTER JOIN FILMS_LIKE_USERS l ON f.ID = l.FILM_ID " +
                 "GROUP BY f.ID " +
                 "ORDER BY count(l.USER_ID) DESC, f.ID ASC " +
@@ -195,7 +195,7 @@ public class FilmDbStorage implements FilmStorage{
     public int deleteLikeFilm(int filmId, int userId) {
         String sqlQuery = "delete from films_like_users where film_id = ? and user_id = ? ";
         return jdbcTemplate.update(sqlQuery, filmId, userId);
-    };
+    }
 
     private List<Genre> getAllGenreByFilmId(int id) {
         String sqlQuery = "select genre_id FROM films_genres WHERE film_id = ? ";
