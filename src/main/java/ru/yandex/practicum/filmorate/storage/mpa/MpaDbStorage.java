@@ -35,7 +35,7 @@ public class MpaDbStorage implements MpaStorage {
 
     @Override
     public Optional<Mpa> getMpaById(int id) {
-        try{
+        try {
             String sqlQuery = "SELECT id, name FROM mpa WHERE id = ?";
             return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id));
         } catch (EmptyResultDataAccessException e) {
