@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.user.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +17,18 @@ import java.util.Optional;
 @Component("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private static final String INSERT_NEW_USER = "insert into users(login, name, email, birthday) " +
+            "values (?, ?, ?, ?)";
+    private static final String UPDATE_USER = "update users set " +
+            "login = ?, name = ?, email = ?, birthday = ? " +
+            "where id = ?";
+    private static final String DELETE_ID_USER = "delete from users where id = ?";
+    private static final String SELECT_ID_USER = "select * from users where id = ?";
+    private static final String SELECT_ALL_USER = "select * from users ";
+    private static final String DELETE_ALL_USER = "delete from users";
+    private static final String INSERT_FRIEND = "insert into friends(user_id, friend_id) values (?, ?)";
+    private static final String DELETE_FRIEND = "delete from friends where user_id = ? and friend_id = ? ";
+    private static final String SELECT_ALL_ID_FRIENDS = "select friend_id from friends where user_id = ?";
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -23,11 +36,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-        String sqlQuery = "insert into users(login, name, email, birthday) " +
-                "values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+            PreparedStatement stmt = connection.prepareStatement(INSERT_NEW_USER, new String[]{"id"});
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getName());
             stmt.setString(3, user.getEmail());
@@ -41,10 +52,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> updateUser(User user) {
-        String sqlQuery = "update users set " +
-                "login = ?, name = ?, email = ?, birthday = ? " +
-                "where id = ?";
-        int i = jdbcTemplate.update(sqlQuery,
+        int i = jdbcTemplate.update(UPDATE_USER,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
@@ -59,13 +67,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public int deleteUserById(int id) {
-        String sql = "delete from users where id = ?";
-        return jdbcTemplate.update(sql, id);
+        return jdbcTemplate.update(DELETE_ID_USER, id);
     }
 
     @Override
     public Optional<User> getUserById(int id) {
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(SELECT_ID_USER, id);
         if (userRows.next()) {
             User user = new User();
             user.setId(userRows.getInt("id"));
@@ -81,32 +88,27 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUser() {
-        String sqlQuery = "select * from users ";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToUser(rs, rowNum));
+        return jdbcTemplate.query(SELECT_ALL_USER, (rs, rowNum) -> mapRowToUser(rs, rowNum));
     }
 
     @Override
     public int deleteAllUsers() {
-        String sql = "delete from users";
-        return jdbcTemplate.update(sql);
+        return jdbcTemplate.update(DELETE_ALL_USER);
     }
 
     @Override
     public int addFriendById(int userId, int friendId) {
-        String sqlQuery = "insert into friends(user_id, friend_id) values (?, ?)";
-        return jdbcTemplate.update(sqlQuery, userId, friendId);
+        return jdbcTemplate.update(INSERT_FRIEND, userId, friendId);
     }
 
     @Override
     public int deleteFriendById(int userId, int friendId) {
-        String sqlQuery = "delete from friends where user_id = ? and friend_id = ? ";
-        return jdbcTemplate.update(sqlQuery, userId, friendId);
+        return jdbcTemplate.update(DELETE_FRIEND, userId, friendId);
     }
 
     @Override
     public List<Integer> getAllIdFriends(int id) {
-        String sqlQuery = "select friend_id from friends where user_id = ?";
-        List<Integer> friends = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToInteger(rs, rowNum), id);
+        List<Integer> friends = jdbcTemplate.query(SELECT_ALL_ID_FRIENDS, (rs, rowNum) -> mapRowToInteger(rs, rowNum), id);
         return friends;
     }
 

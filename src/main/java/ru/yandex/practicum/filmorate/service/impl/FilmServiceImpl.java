@@ -21,7 +21,7 @@ import java.util.ArrayList;
 @Slf4j
 @Service
 public class FilmServiceImpl implements FilmService {
-    protected final FilmStorage storage;
+    private final FilmStorage storage;
     private final UserStorage userStorage;
     private final Validation validator;
 

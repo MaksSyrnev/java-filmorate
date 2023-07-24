@@ -1,40 +1,31 @@
-package ru.yandex.practicum.filmorate.storage.genre;
+package ru.yandex.practicum.filmorate.storage.genre.impl;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreComporator comporator;
+    private static final String SELECT_GENRE_ID = "SELECT id, name FROM genres WHERE id = ?";
+    private static final String SELECT_ALL_GENRES = "SELECT id, name FROM genres ";
 
-    public GenreDbStorage(JdbcTemplate jdbcTemplate, GenreComporator comporator) {
+    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.comporator = comporator;
-    }
-
-    @Override
-    public Genre addGenre(Genre genre) {
-        return null;
-    }
-
-    @Override
-    public Optional<Genre> updateGenre(Genre genre) {
-        return Optional.empty();
     }
 
     @Override
     public Optional<Genre> getGenreById(int id) {
         try {
-            String sqlQuery = "SELECT id, name FROM genres WHERE id = ?";
-            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToGenre, id));
+            return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_GENRE_ID, this::mapRowToGenre, id));
         } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
@@ -42,20 +33,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAllGenres() {
-        String sqlQuery = "SELECT id, name FROM genres ";
-        List<Genre> genres = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> mapRowToGenre(rs, rowNum));
-        genres.sort(comporator);
+        List<Genre> genres = jdbcTemplate.query(SELECT_ALL_GENRES, (rs, rowNum) -> mapRowToGenre(rs, rowNum));
+        genres.sort(Comparator.comparing(Genre::getId));
         return genres;
-    }
-
-    @Override
-    public int deleteGenreById(int id) {
-        return 0;
-    }
-
-    @Override
-    public int deleteAllGenres() {
-        return 0;
     }
 
     private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
