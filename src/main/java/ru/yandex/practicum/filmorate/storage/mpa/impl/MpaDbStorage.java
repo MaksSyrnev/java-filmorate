@@ -16,7 +16,7 @@ import java.util.Optional;
 @Component
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
-    private static final String SELECT_MPA_ID = "SELECT id, name FROM mpa WHERE id = ?";
+    private final static String SELECT_MPA_ID = "SELECT id, name FROM mpa WHERE id = ?";
     private final static String SELECT_ALL_MPA = "SELECT id, name FROM mpa ";
 
     @Autowired
