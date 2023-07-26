@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.user.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -13,7 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
+@Slf4j
 @Component("UserDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -45,20 +49,25 @@ public class UserDbStorage implements UserStorage {
             stmt.setString(4, user.getBirthday().toString());
             return stmt;
         }, keyHolder);
-        int i = keyHolder.getKey().intValue();
-        user.setId(i);
+        try {
+            int userId = Objects.requireNonNull(keyHolder.getKey()).intValue();
+            user.setId(userId);
+        } catch (NullPointerException e) {
+            log.error("Ошибка при добавлении пользователя в БД: {}, ошибка: {}",  user, e.getMessage());
+            throw new IncorrectIdException("id пользователя не вернулся при добавлении в БД");
+        }
         return user;
     }
 
     @Override
     public Optional<User> updateUser(User user) {
-        int i = jdbcTemplate.update(UPDATE_USER,
+        int countRecord = jdbcTemplate.update(UPDATE_USER,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
                 user.getBirthday(),
                 user.getId());
-        if (i > 0) {
+        if (countRecord > 0) {
             return Optional.of(user);
         } else {
             return Optional.empty();
@@ -79,7 +88,12 @@ public class UserDbStorage implements UserStorage {
             user.setEmail(userRows.getString("email"));
             user.setLogin(userRows.getString("login"));
             user.setName(userRows.getString("name"));
-            user.setBirthday(userRows.getDate("birthday").toLocalDate());
+            try {
+                user.setBirthday(Objects.requireNonNull(userRows.getDate("birthday")).toLocalDate());
+            } catch (NullPointerException e) {
+                log.error("Ошибка при извлечении данных пользователя из БД: {}, ошибка: {}",  id, e.getMessage());
+                throw new IncorrectIdException("Дата рождения пользователя не получена из БД");
+            }
             return Optional.of(user);
         } else {
             return Optional.empty();
@@ -88,7 +102,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUser() {
-        return jdbcTemplate.query(SELECT_ALL_USER, (rs, rowNum) -> mapRowToUser(rs, rowNum));
+        return jdbcTemplate.query(SELECT_ALL_USER, this::mapRowToUser);
     }
 
     @Override
@@ -108,7 +122,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Integer> getAllIdFriends(int id) {
-        List<Integer> friends = jdbcTemplate.query(SELECT_ALL_ID_FRIENDS, (rs, rowNum) -> mapRowToInteger(rs, rowNum), id);
+        List<Integer> friends = jdbcTemplate.query(SELECT_ALL_ID_FRIENDS, this::mapRowToInteger, id);
         return friends;
     }
 
