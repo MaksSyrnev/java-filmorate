@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.mpa.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
@@ -13,7 +14,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Slf4j
+@Repository
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_MPA_ID = "SELECT id, name FROM mpa WHERE id = ?";
@@ -29,13 +31,14 @@ public class MpaDbStorage implements MpaStorage {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_MPA_ID, this::mapRowToMpa, id));
         } catch (EmptyResultDataAccessException e) {
+            log.error("Райтинг не найден в БД, id: {}, ошибка: {}",  id, e.getMessage());
             return Optional.empty();
         }
     }
 
     @Override
     public List<Mpa> getAllMpa() {
-        List<Mpa> allMpa = jdbcTemplate.query(SELECT_ALL_MPA, (rs, rowNum) -> mapRowToMpa(rs, rowNum));
+        List<Mpa> allMpa = jdbcTemplate.query(SELECT_ALL_MPA, this::mapRowToMpa);
         allMpa.sort(Comparator.comparing(Mpa::getId));
         return allMpa;
     }

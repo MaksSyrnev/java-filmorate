@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.genre.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -12,7 +13,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Slf4j
+@Repository
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SELECT_GENRE_ID = "SELECT id, name FROM genres WHERE id = ?";
@@ -27,13 +29,14 @@ public class GenreDbStorage implements GenreStorage {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(SELECT_GENRE_ID, this::mapRowToGenre, id));
         } catch (EmptyResultDataAccessException e) {
+            log.error("Жанр не найден в БД, id: {}, ошибка: {}",  id, e.getMessage());
             return Optional.empty();
         }
     }
 
     @Override
     public List<Genre> getAllGenres() {
-        List<Genre> genres = jdbcTemplate.query(SELECT_ALL_GENRES, (rs, rowNum) -> mapRowToGenre(rs, rowNum));
+        List<Genre> genres = jdbcTemplate.query(SELECT_ALL_GENRES, this::mapRowToGenre);
         genres.sort(Comparator.comparing(Genre::getId));
         return genres;
     }
