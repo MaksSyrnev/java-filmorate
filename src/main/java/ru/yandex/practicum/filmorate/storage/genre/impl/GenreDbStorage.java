@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exeption.DataBaseExeption;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -41,10 +42,15 @@ public class GenreDbStorage implements GenreStorage {
         return genres;
     }
 
-    private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws SQLException {
-        Genre genre = new Genre();
-        genre.setId(resultSet.getInt("id"));
-        genre.setName(resultSet.getString("name"));
-        return genre;
+    private Genre mapRowToGenre(ResultSet resultSet, int rowNum) throws DataBaseExeption {
+        try {
+            Genre genre = new Genre();
+            genre.setId(resultSet.getInt("id"));
+            genre.setName(resultSet.getString("name"));
+            return genre;
+        } catch (SQLException e) {
+            log.error("Неудача в обработке ответа из БД, rs: {}, ошибка: {}",  resultSet, e.getMessage());
+            throw new DataBaseExeption("Ошибка при обработке ответа от БД" + e.getClass() + e.getMessage());
+        }
     }
 }

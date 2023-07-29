@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.GenreController;
 import ru.yandex.practicum.filmorate.controller.MpaController;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exeption.DataBaseExeption;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.exeption.ErrorResponse;
@@ -63,6 +64,15 @@ public class CommonExceptionHandler {
         log.error("ошибка: - '{}'", e.getMessage());
         return new ErrorResponse(
                 "Ошибка данных", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleDataBaseExeptionError(DataBaseExeption e) {
+        log.error("ошибка: - '{}'", e.getMessage());
+        return new ErrorResponse(
+                "Ошибка обработки данных из БД", e.getMessage()
         );
     }
 }
