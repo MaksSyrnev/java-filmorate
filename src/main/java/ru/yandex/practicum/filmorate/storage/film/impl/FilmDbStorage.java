@@ -183,18 +183,25 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getTopFilms(int count) {
-        List<Integer> topFilmsIds = jdbcTemplate.query(SELECT_TOP_FILM_ID, this::mapRowToInteger, count);
-        List<Film> films = jdbcTemplate.queryForObject(SELECT_TOP_FILM_GENRES, this::mapRowToIdFilmsGenre, count);
-        ArrayList<Film> topFilms = new ArrayList<>();
-        for (int i : topFilmsIds) {
-            for (Film currentFilm : films) {
-                if (currentFilm.getId() == i) {
-                    topFilms.add(currentFilm);
-                    break;
+        try {
+            List<Integer> topFilmsIds = jdbcTemplate.query(SELECT_TOP_FILM_ID, this::mapRowToInteger, count);
+            if (topFilmsIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+            List<Film> films = jdbcTemplate.queryForObject(SELECT_TOP_FILM_GENRES, this::mapRowToIdFilmsGenre, count);
+            ArrayList<Film> topFilms = new ArrayList<>();
+            for (int i : topFilmsIds) {
+                for (Film currentFilm : films) {
+                    if (currentFilm.getId() == i) {
+                        topFilms.add(currentFilm);
+                        break;
+                    }
                 }
             }
+            return topFilms;
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
         }
-        return topFilms;
     }
 
     @Override

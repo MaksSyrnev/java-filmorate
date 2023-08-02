@@ -299,7 +299,10 @@ class FilmorateApplicationTests {
 		film.setMpa(mpa);
 		filmStorage.addFilm(film);
 		filmStorage.deleteAllFilms();
+		List<Film> moviesTop = filmStorage.getTopFilms(1);
 		List<Film> moviesAll = filmStorage.getAllFilms();
+		assertEquals(0, moviesTop.size(),
+				"топ фильмы не удалены");
 		assertEquals(0, moviesAll.size(),
 				"фильмы не удалены");
 	}
