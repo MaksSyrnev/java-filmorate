@@ -260,7 +260,7 @@ public class FilmDbStorage implements FilmStorage {
                 genre.setName(resultSet.getString("genre_name"));
                 filmsMap.get(film.getId()).getGenres().add(genre);
             }
-            if(resultSet.getInt("like_id") > 0) {
+            if (resultSet.getInt("like_id") > 0) {
                 int userId = resultSet.getInt("like_id");
                 filmsMap.get(film.getId()).getLikes().add(userId);
             }
