@@ -129,24 +129,34 @@ public class FilmDbStorage implements FilmStorage {
         if (countRecord <= 0) {
             return Optional.empty();
         }
-        List<Genre> genresNew = new ArrayList<>(film.getGenres());
-        List<Genre> genresOld = getAllGenreByFilmId(filmId);
-        if (genresOld.isEmpty() && genresNew.isEmpty()) {
+        List<Genre> filmGenresNew = new ArrayList<>(film.getGenres());
+        List<Genre> filmGenresOld = getAllGenreByFilmId(filmId);
+        if (filmGenresOld.isEmpty() && filmGenresNew.isEmpty()) {
             return Optional.of(film);
-        } else if (genresNew.isEmpty()) {
+        } else if (filmGenresNew.isEmpty()) {
             jdbcTemplate.update(DELETE_FILM_GENRE, filmId);
         } else {
             jdbcTemplate.update(DELETE_FILM_GENRE, filmId);
             try {
-                insertGenresFilm(filmId, genresNew);
+                insertGenresFilm(filmId, filmGenresNew);
             } catch (Throwable e) {
                 log.error("Ошибка при добавлении жанров для фильма в БД, film: {}, ошибка: {}",  filmId,
                         e.getMessage());
                 throw new DataBaseExeption("Ошибка при обработке ответа от БД" + e.getClass() + e.getMessage());
             }
-        genresNew.sort(Comparator.comparing(Genre::getId));
-        film.getGenres().clear();
-        film.getGenres().addAll(genresNew);
+            List<Genre> allGenresStorage = genreStorage.getAllGenres();
+            for (Genre curntGenre: filmGenresNew) {
+                int genreId = curntGenre.getId();
+                for (int i = 0; i < allGenresStorage.size(); i++) {
+                    if (genreId == allGenresStorage.get(i).getId()) {
+                        curntGenre.setName(allGenresStorage.get(i).getName());
+                        break;
+                    }
+                }
+            }
+            filmGenresNew.sort(Comparator.comparing(Genre::getId));
+            film.getGenres().clear();
+            film.getGenres().addAll(filmGenresNew);
         }
         return Optional.of(film);
     }
