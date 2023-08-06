@@ -7,15 +7,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.controller.GenreController;
+import ru.yandex.practicum.filmorate.controller.MpaController;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exeption.DataBaseExeption;
 import ru.yandex.practicum.filmorate.exeption.IncorrectIdException;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
+import ru.yandex.practicum.filmorate.exeption.ErrorResponse;
 
 import javax.validation.ConstraintViolationException;
 
 @Slf4j
-@RestControllerAdvice(assignableTypes = {FilmController.class, UserController.class})
+@RestControllerAdvice(assignableTypes = {FilmController.class, UserController.class,
+        GenreController.class, MpaController.class})
 public class CommonExceptionHandler {
 
     @ExceptionHandler
@@ -60,6 +64,15 @@ public class CommonExceptionHandler {
         log.error("ошибка: - '{}'", e.getMessage());
         return new ErrorResponse(
                 "Ошибка данных", e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleDataBaseExeptionError(DataBaseExeption e) {
+        log.error("ошибка: - '{}'", e.getMessage());
+        return new ErrorResponse(
+                "Ошибка обработки данных из БД", e.getMessage()
         );
     }
 }
